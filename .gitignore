@@ -216,3 +216,37 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Machine learning model files (ignore large generated models)
+
+# Remove this rule if you intentionally want to version small model files
+
+# models/*.joblib
+
+# models/*.pkl
+
+# Temporary and cache files
+
+*.tmp
+*.log
+
+# Local environment and secrets
+
+.env.*
+
+# Jupyter notebook checkpoints
+
+.ipynb_checkpoints/
+
+# Operating system files
+
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# CatBoost training logs
+notebooks/catboost_info/
+catboost_info/
+
+# Large Random Forest model (keep locally)
+models/random_forest_model.pkl
