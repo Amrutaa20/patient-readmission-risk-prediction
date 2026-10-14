@@ -1,0 +1,413 @@
+<div class="app-shell">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">+</div>
+      <div>
+        <h2>ReadmitAI</h2>
+        <p>Clinical Intelligence</p>
+      </div>
+    </div>
+
+    <div class="menu-label">WORKSPACE</div>
+
+    <nav class="navigation">
+      <button
+        [class.active]="activeSection === 'dashboard'"
+        (click)="setActiveSection('dashboard')"
+      >
+        <span class="nav-icon">▦</span>
+        Dashboard
+      </button>
+
+      <button
+        [class.active]="activeSection === 'prediction'"
+        (click)="setActiveSection('prediction')"
+      >
+        <span class="nav-icon">⌕</span>
+        Readmission Prediction
+      </button>
+
+      <button
+        [class.active]="activeSection === 'performance'"
+        (click)="setActiveSection('performance')"
+      >
+        <span class="nav-icon">▥</span>
+        Model Performance
+      </button>
+
+      <button
+        [class.active]="activeSection === 'assistant'"
+        (click)="setActiveSection('assistant')"
+      >
+        <span class="nav-icon">✧</span>
+        AI Assistant
+      </button>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="status-dot"></div>
+      <div>
+        <strong>Prediction API</strong>
+        <p>Local development</p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <header class="topbar">
+      <div>
+        <p class="breadcrumb">Workspace / {{ activeSection }}</p>
+        <h1>
+          {{
+            activeSection === 'dashboard'
+              ? 'Dashboard Overview'
+              : activeSection === 'prediction'
+                ? 'Readmission Prediction'
+                : activeSection === 'performance'
+                  ? 'Model Performance'
+                  : 'AI Assistant'
+          }}
+        </h1>
+      </div>
+
+      <div class="topbar-right">
+        <span class="environment-badge">
+          <span class="status-dot"></span>
+          Development
+        </span>
+        <div class="avatar">RA</div>
+      </div>
+    </header>
+
+    <!-- Dashboard -->
+    <section *ngIf="activeSection === 'dashboard'" class="page-content">
+      <div class="welcome-banner">
+        <div>
+          <span class="eyebrow">MACHINE LEARNING · HEALTHCARE</span>
+          <h2>Patient Readmission Risk Prediction</h2>
+          <p>
+            Explore model performance and demonstrate 30-day readmission
+            predictions using the existing processed dataset.
+          </p>
+        </div>
+
+        <div class="banner-symbol">✚</div>
+      </div>
+
+      <div class="notice">
+        <strong>Academic prototype</strong>
+        <span>
+          Predictions are experimental and are not intended for clinical
+          decision-making.
+        </span>
+      </div>
+
+      <div class="section-heading">
+        <div>
+          <h2>Model at a glance</h2>
+          <p>Performance figures from your saved model metadata</p>
+        </div>
+        <span class="model-tag">XGBoost</span>
+      </div>
+
+      <div class="metric-grid">
+        <article class="metric-card">
+          <div class="metric-top">
+            <span class="metric-label">ROC-AUC</span>
+            <span class="metric-icon purple">↗</span>
+          </div>
+          <h3>0.6875</h3>
+          <p>Discrimination metric</p>
+        </article>
+
+        <article class="metric-card">
+          <div class="metric-top">
+            <span class="metric-label">Recall</span>
+            <span class="metric-icon green">◎</span>
+          </div>
+          <h3>81.33%</h3>
+          <p>At the saved operating threshold</p>
+        </article>
+
+        <article class="metric-card">
+          <div class="metric-top">
+            <span class="metric-label">Precision</span>
+            <span class="metric-icon orange">◈</span>
+          </div>
+          <h3>15.06%</h3>
+          <p>At the saved operating threshold</p>
+        </article>
+
+        <article class="metric-card">
+          <div class="metric-top">
+            <span class="metric-label">Input features</span>
+            <span class="metric-icon blue">▤</span>
+          </div>
+          <h3>111</h3>
+          <p>Processed model inputs</p>
+        </article>
+      </div>
+
+      <div class="content-grid">
+        <article class="panel dataset-panel">
+          <div class="panel-heading">
+            <div>
+              <h3>Dataset overview</h3>
+              <p>Processed Diabetes 130-US Hospitals dataset</p>
+            </div>
+            <span class="panel-icon">▦</span>
+          </div>
+
+          <div class="dataset-total">
+            <strong>101,766</strong>
+            <span>encounters</span>
+          </div>
+
+          <div class="distribution-bar">
+            <div class="distribution-negative"></div>
+            <div class="distribution-positive"></div>
+          </div>
+
+          <div class="legend-row">
+            <div>
+              <span class="legend-dot negative"></span>
+              <span>Not readmitted within 30 days</span>
+            </div>
+            <strong>90,409</strong>
+          </div>
+
+          <div class="legend-row">
+            <div>
+              <span class="legend-dot positive"></span>
+              <span>Readmitted within 30 days</span>
+            </div>
+            <strong>11,357</strong>
+          </div>
+
+          <div class="dataset-footnote">
+            The target is imbalanced, so accuracy alone is not sufficient
+            to assess model quality.
+          </div>
+        </article>
+
+        <article class="panel actions-panel">
+          <div class="panel-heading">
+            <div>
+              <h3>Quick actions</h3>
+              <p>Explore your prediction system</p>
+            </div>
+          </div>
+
+          <button
+            class="action-card"
+            (click)="setActiveSection('prediction')"
+          >
+            <span class="action-icon purple">⌕</span>
+            <span>
+              <strong>Run a sample prediction</strong>
+              <small>Evaluate a record from the processed dataset</small>
+            </span>
+            <span class="arrow">→</span>
+          </button>
+
+          <button
+            class="action-card"
+            (click)="setActiveSection('performance')"
+          >
+            <span class="action-icon blue">▥</span>
+            <span>
+              <strong>Review model performance</strong>
+              <small>Understand the saved evaluation metrics</small>
+            </span>
+            <span class="arrow">→</span>
+          </button>
+
+          <button
+            class="action-card"
+            (click)="setActiveSection('assistant')"
+          >
+            <span class="action-icon green">✧</span>
+            <span>
+              <strong>Explore the AI assistant</strong>
+              <small>View the assistant integration area</small>
+            </span>
+            <span class="arrow">→</span>
+          </button>
+        </article>
+      </div>
+
+      <footer class="page-footer">
+        Patient Readmission Risk Prediction · Academic project
+      </footer>
+    </section>
+
+    <!-- Prediction Section -->
+   <section *ngIf="activeSection === 'prediction'" class="page-section">
+  <div class="page-heading">
+    <div>
+      <p class="eyebrow">MACHINE LEARNING</p>
+      <h1>Readmission Prediction</h1>
+      <p>Estimate 30-day readmission risk using an existing dataset record.</p>
+    </div>
+  </div>
+
+  <div class="panel prediction-panel">
+    <h2>Test a Dataset Record</h2>
+    <p class="muted">
+      Select a row index from 0 to 101765 in the processed dataset.
+    </p>
+
+    <label for="rowIndex">Dataset Row Index</label>
+
+    <input
+      id="rowIndex"
+      type="number"
+      [(ngModel)]="rowIndex"
+      min="0"
+      max="101765"
+      step="1"
+      required
+    />
+
+    <button
+      type="button"
+      class="primary-button"
+      (click)="predictReadmission()"
+      [disabled]="loading || rowIndex < 0 || rowIndex > 101765 || rowIndex % 1 !== 0"
+    >
+      {{ loading ? 'Analyzing...' : 'Predict Readmission Risk' }}
+    </button>
+
+    <p *ngIf="errorMessage" class="error-message">
+      {{ errorMessage }}
+    </p>
+  </div>
+
+  <div *ngIf="prediction as result" class="panel result-panel">
+    <p class="eyebrow">PREDICTION RESULT</p>
+
+    <h2>{{ result.predicted_label }}</h2>
+
+    <div class="result-metric">
+      <span>Estimated readmission probability</span>
+      <strong>
+        {{ result.readmission_probability * 100 | number:'1.1-2' }}%
+      </strong>
+    </div>
+
+    <div class="probability-track">
+      <div
+        class="probability-fill"
+        [style.width.%]="result.readmission_probability * 100"
+      ></div>
+    </div>
+
+    <p>
+      <strong>Dataset row:</strong>
+      {{ result.row_index }}
+    </p>
+
+    <p>
+      <strong>Model decision threshold:</strong>
+      {{ result.threshold * 100 }}%
+    </p>
+
+    <p>
+      <strong>Actual dataset label:</strong>
+      {{
+        result.actual_label === 1
+          ? 'Readmitted within 30 days'
+          : 'Not readmitted within 30 days'
+      }}
+    </p>
+
+    <p class="disclaimer">{{ result.note }}</p>
+  </div>
+</section>
+
+    <!-- Performance Section -->
+    <section *ngIf="activeSection === 'performance'" class="page-content">
+      <div class="section-heading">
+        <div>
+          <h2>Model performance</h2>
+          <p>Saved XGBoost evaluation metrics</p>
+        </div>
+      </div>
+
+      <div class="notice">
+        <strong>Interpretation matters</strong>
+        <span>
+          These metrics describe the existing model evaluation. They do not
+          establish clinical effectiveness.
+        </span>
+      </div>
+
+      <article class="panel">
+        <div class="performance-row">
+          <span>ROC-AUC</span>
+          <strong>0.6875</strong>
+        </div>
+
+        <div class="performance-row">
+          <span>PR-AUC</span>
+          <strong>0.2341</strong>
+        </div>
+
+        <div class="performance-row">
+          <span>Recall</span>
+          <strong>81.33%</strong>
+        </div>
+
+        <div class="performance-row">
+          <span>Precision</span>
+          <strong>15.06%</strong>
+        </div>
+
+        <div class="performance-row">
+          <span>F1 score</span>
+          <strong>0.2541</strong>
+        </div>
+
+        <div class="performance-row">
+          <span>Operating threshold</span>
+          <strong>0.40</strong>
+        </div>
+      </article>
+
+      <article class="panel interpretation-panel">
+        <h3>What do these metrics mean?</h3>
+        <p>
+          Recall measures the proportion of positive cases identified by
+          the model. Precision measures the proportion of predicted
+          positive cases that were actually positive.
+        </p>
+        <p>
+          The current threshold favors recall over precision. The relatively
+          low precision indicates many false-positive predictions.
+        </p>
+      </article>
+    </section>
+
+    <!-- AI Assistant Section -->
+    <section *ngIf="activeSection === 'assistant'" class="page-content">
+      <div class="section-heading">
+        <div>
+          <h2>AI Assistant</h2>
+          <p>Healthcare machine-learning project assistant</p>
+        </div>
+      </div>
+
+      <article class="panel assistant-placeholder">
+        <div class="assistant-symbol">✧</div>
+        <h3>Your AI assistant workspace</h3>
+        <p>
+          This section is reserved for an AI assistant that explains the
+          dataset, model metrics, and prediction workflow.
+        </p>
+        <span class="coming-soon">Integration pending</span>
+      </article>
+    </section>
+  </main>
+</div>

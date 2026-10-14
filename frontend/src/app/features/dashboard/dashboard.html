@@ -1,0 +1,95 @@
+
+<section class="dashboard">
+    <div class="api-status">
+  <span class="status-dot"></span>
+  API: {{ apiStatus }}
+  @if (apiModel) {
+    <span> · Model: {{ apiModel }}</span>
+  }
+</div>
+  <div class="page-heading">
+    <div>
+      <p class="eyebrow">CLINICAL OVERVIEW</p>
+      <h1>Patient Readmission Overview</h1>
+      <p class="subtitle">
+        Monitor readmission patterns and review AI-generated risk assessments.
+      </p>
+    </div>
+
+    <div class="heading-actions">
+      <a class="btn btn-outline" routerLink="/patients">View Patients</a>
+      <a class="btn btn-primary" routerLink="/prediction/new">＋ New Prediction</a>
+    </div>
+  </div>
+
+  <div class="metrics-grid">
+    @for (metric of metrics; track metric.label) {
+      <article class="metric-card">
+        <div class="metric-top">
+          <span class="metric-label">{{ metric.label }}</span>
+          <span class="metric-icon" [class]="metric.color">{{ metric.icon }}</span>
+        </div>
+        <h2>{{ metric.value }}</h2>
+        <p>{{ metric.detail }}</p>
+      </article>
+    }
+  </div>
+
+  <div class="charts-grid">
+    <article class="panel">
+      <div class="panel-heading">
+        <div>
+          <h2>Readmission Risk Distribution</h2>
+          <p>Distribution of saved model predictions</p>
+        </div>
+      </div>
+
+      <div class="empty-chart">
+        <div class="empty-icon">◔</div>
+        <strong>No prediction data yet</strong>
+        <p>Generate a prediction to start building your risk overview.</p>
+        <a routerLink="/prediction/new">Create prediction →</a>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-heading">
+        <div>
+          <h2>Readmission Analytics</h2>
+          <p>Historical dataset outcomes</p>
+        </div>
+      </div>
+
+      <div class="empty-chart">
+        <div class="empty-icon">▥</div>
+        <strong>Analytics will appear here</strong>
+        <p>Connect the processed dataset to display observed readmission patterns.</p>
+        <a routerLink="/analytics">Explore analytics →</a>
+      </div>
+    </article>
+  </div>
+
+  <article class="panel recent-panel">
+    <div class="panel-heading">
+      <div>
+        <h2>Recent Predictions</h2>
+        <p>Your latest saved risk assessments</p>
+      </div>
+      <a routerLink="/history">View history →</a>
+    </div>
+
+    <div class="empty-table">
+      <p>No predictions have been saved yet.</p>
+      <a class="btn btn-outline" routerLink="/prediction/new">Start an assessment</a>
+    </div>
+  </article>
+
+  <article class="assistant-banner">
+    <div class="assistant-symbol">✧</div>
+    <div>
+      <h2>Meet MediAssist AI</h2>
+      <p>Explore model concepts, prediction explanations and project information.</p>
+    </div>
+    <a class="btn btn-light" routerLink="/assistant">Open AI Assistant →</a>
+  </article>
+</section>

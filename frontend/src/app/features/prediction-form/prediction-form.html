@@ -1,0 +1,67 @@
+<main class="prediction-page">
+  <div class="page-heading">
+    <span class="eyebrow">MACHINE LEARNING</span>
+    <h1>Readmission Prediction</h1>
+    <p>Estimate 30-day readmission risk using an existing dataset record.</p>
+  </div>
+
+  <section class="prediction-card">
+    <h2>Test a Dataset Record</h2>
+    <p>Select a row index from 0 to 101765 in the processed dataset.</p>
+
+    <form (ngSubmit)="predict()">
+      <label for="rowIndex">Dataset Row Index</label>
+      <input
+        id="rowIndex"
+        name="rowIndex"
+        type="number"
+        min="0"
+        max="101765"
+        step="1"
+        [(ngModel)]="rowIndex"
+        required
+      />
+
+      <button type="submit" [disabled]="loading">
+        {{ loading ? 'Analyzing...' : 'Predict Readmission Risk' }}
+      </button>
+    </form>
+
+    @if (errorMessage) {
+      <div class="error-message" role="alert">{{ errorMessage }}</div>
+    }
+  </section>
+
+  @if (result; as prediction) {
+    <section class="result-card">
+      <span class="eyebrow">PREDICTION RESULT</span>
+      <h2>{{ prediction.predicted_label }}</h2>
+
+      <div class="risk-value">
+        {{ (prediction.readmission_probability * 100).toFixed(2) }}%
+      </div>
+      <p>Estimated 30-day readmission probability</p>
+
+      <div class="result-details">
+        <div>
+          <span>Dataset row</span>
+          <strong>{{ prediction.row_index }}</strong>
+        </div>
+        <div>
+          <span>Predicted class</span>
+          <strong>{{ prediction.predicted_class }}</strong>
+        </div>
+        <div>
+          <span>Decision threshold</span>
+          <strong>{{ (prediction.threshold * 100).toFixed(0) }}%</strong>
+        </div>
+        <div>
+          <span>Actual dataset label</span>
+          <strong>{{ prediction.actual_label }}</strong>
+        </div>
+      </div>
+
+      <p class="disclaimer">{{ prediction.note }}</p>
+    </section>
+  }
+</main>

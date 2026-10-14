@@ -1,0 +1,31 @@
+
+<aside class="sidebar">
+  <a class="brand" routerLink="/dashboard">
+    <span class="brand-icon">✚</span>
+    <span>
+      <strong>MediPredict</strong>
+      <small>AI HEALTHCARE</small>
+    </span>
+  </a>
+
+  <p class="nav-heading">WORKSPACE</p>
+
+  <nav>
+    @for (item of navigation; track item.path) {
+      <a
+        class="nav-link"
+        [routerLink]="item.path"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }">
+        <span class="nav-icon">{{ item.icon }}</span>
+        <span>{{ item.label }}</span>
+      </a>
+    }
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="status-dot"></div>
+    <span>Prediction system</span>
+    <small>Online</small>
+  </div>
+</aside>
