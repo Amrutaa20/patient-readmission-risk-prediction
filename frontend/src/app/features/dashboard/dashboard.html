@@ -1,95 +1,226 @@
-
-<section class="dashboard">
-    <div class="api-status">
-  <span class="status-dot"></span>
-  API: {{ apiStatus }}
-  @if (apiModel) {
-    <span> · Model: {{ apiModel }}</span>
-  }
-</div>
-  <div class="page-heading">
+<div class="dashboard-page">
+  <!-- Greeting Header -->
+  <header class="page-header">
     <div>
-      <p class="eyebrow">CLINICAL OVERVIEW</p>
-      <h1>Patient Readmission Overview</h1>
-      <p class="subtitle">
-        Monitor readmission patterns and review AI-generated risk assessments.
-      </p>
+      <h1 class="greeting-title">Good morning, Dr. Sharma</h1>
+      <p class="greeting-subtitle">Monitor patient readmission risk and review prediction insights.</p>
     </div>
-
-    <div class="heading-actions">
-      <a class="btn btn-outline" routerLink="/patients">View Patients</a>
-      <a class="btn btn-primary" routerLink="/prediction/new">＋ New Prediction</a>
+    <div class="header-actions">
+      <a routerLink="/prediction/new" class="btn btn-teal">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        New Prediction
+      </a>
+      <a routerLink="/patients" class="btn btn-outline">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        View Patients
+      </a>
     </div>
-  </div>
+  </header>
 
-  <div class="metrics-grid">
+  <!-- Metric Cards Grid -->
+  <section class="metrics-grid">
     @for (metric of metrics; track metric.label) {
-      <article class="metric-card">
-        <div class="metric-top">
+      <div class="metric-card card">
+        <div class="metric-icon-wrap" [class]="metric.color">
+          @switch (metric.icon) {
+            @case ('users') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            }
+            @case ('check-doc') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <polyline points="9 15 11 17 15 13"/>
+              </svg>
+            }
+            @case ('alert') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+            }
+            @case ('percent') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="19" y1="5" x2="5" y2="19"/>
+                <circle cx="6.5" cy="6.5" r="2.5"/>
+                <circle cx="17.5" cy="17.5" r="2.5"/>
+              </svg>
+            }
+          }
+        </div>
+        <div class="metric-content">
           <span class="metric-label">{{ metric.label }}</span>
-          <span class="metric-icon" [class]="metric.color">{{ metric.icon }}</span>
+          <h2 class="metric-value">{{ metric.value }}</h2>
+          <span class="metric-subtext">{{ metric.subtext }}</span>
         </div>
-        <h2>{{ metric.value }}</h2>
-        <p>{{ metric.detail }}</p>
-      </article>
+      </div>
     }
-  </div>
+  </section>
 
-  <div class="charts-grid">
-    <article class="panel">
-      <div class="panel-heading">
-        <div>
-          <h2>Readmission Risk Distribution</h2>
-          <p>Distribution of saved model predictions</p>
+  <!-- Middle 3-Column Charts & Table Row -->
+  <section class="dashboard-panels-grid">
+    <!-- Panel 1: Readmission Risk Distribution -->
+    <div class="panel card">
+      <div class="panel-header">
+        <h3 class="panel-title">Readmission Risk Distribution</h3>
+      </div>
+      <div class="panel-body donut-chart-container">
+        <!-- SVG Donut Chart with clean layout matching reference -->
+        <div class="donut-chart-wrap">
+          <svg class="donut-svg" viewBox="0 0 160 160">
+            <!-- Background circle -->
+            <circle cx="80" cy="80" r="54" fill="none" stroke="#F1F5F9" stroke-width="22"/>
+            <!-- Low risk (Green - 44%): dasharray: ~149, offset: 0 -->
+            <circle cx="80" cy="80" r="54" fill="none" stroke="#20B981" stroke-width="22"
+                    stroke-dasharray="149 339" stroke-dashoffset="85" stroke-linecap="round"/>
+            <!-- Medium risk (Orange - 32%): dasharray: ~108 -->
+            <circle cx="80" cy="80" r="54" fill="none" stroke="#F5AE24" stroke-width="22"
+                    stroke-dasharray="108 339" stroke-dashoffset="-64" stroke-linecap="round"/>
+            <!-- High risk (Red - 24%): dasharray: ~82 -->
+            <circle cx="80" cy="80" r="54" fill="none" stroke="#F04452" stroke-width="22"
+                    stroke-dasharray="82 339" stroke-dashoffset="-172" stroke-linecap="round"/>
+          </svg>
+          <div class="donut-center-text">
+            <span class="donut-count">128</span>
+            <span class="donut-sub">Predictions</span>
+          </div>
+        </div>
+
+        <div class="donut-legend">
+          <div class="legend-item">
+            <span class="legend-dot green"></span>
+            <span class="legend-name">Low Risk</span>
+            <span class="legend-stat">56 (44%)</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot yellow"></span>
+            <span class="legend-name">Medium Risk</span>
+            <span class="legend-stat">41 (32%)</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot red"></span>
+            <span class="legend-name">High Risk</span>
+            <span class="legend-stat">31 (24%)</span>
+          </div>
         </div>
       </div>
+    </div>
 
-      <div class="empty-chart">
-        <div class="empty-icon">◔</div>
-        <strong>No prediction data yet</strong>
-        <p>Generate a prediction to start building your risk overview.</p>
-        <a routerLink="/prediction/new">Create prediction →</a>
-      </div>
-    </article>
-
-    <article class="panel">
-      <div class="panel-heading">
-        <div>
-          <h2>Readmission Analytics</h2>
-          <p>Historical dataset outcomes</p>
+    <!-- Panel 2: Readmission Trends -->
+    <div class="panel card">
+      <div class="panel-header trend-header">
+        <h3 class="panel-title">Readmission Trends</h3>
+        <div class="trend-legend">
+          <span class="trend-legend-item blue">
+            <span class="trend-line-sample blue"></span>
+            Readmissions
+          </span>
+          <span class="trend-legend-item teal">
+            <span class="trend-line-sample teal"></span>
+            Predictions
+          </span>
         </div>
       </div>
+      <div class="panel-body line-chart-container">
+        <svg class="line-chart-svg" viewBox="0 0 320 180" preserveAspectRatio="none">
+          <!-- Horizontal Grid Lines -->
+          <line x1="30" y1="20" x2="310" y2="20" stroke="#E8EEF5" stroke-dasharray="3,3"/>
+          <text x="10" y="24" fill="#94A3B8" font-size="10">80</text>
+          <line x1="30" y1="55" x2="310" y2="55" stroke="#E8EEF5" stroke-dasharray="3,3"/>
+          <text x="10" y="59" fill="#94A3B8" font-size="10">60</text>
+          <line x1="30" y1="90" x2="310" y2="90" stroke="#E8EEF5" stroke-dasharray="3,3"/>
+          <text x="10" y="94" fill="#94A3B8" font-size="10">40</text>
+          <line x1="30" y1="125" x2="310" y2="125" stroke="#E8EEF5" stroke-dasharray="3,3"/>
+          <text x="10" y="129" fill="#94A3B8" font-size="10">20</text>
+          <line x1="30" y1="160" x2="310" y2="160" stroke="#E2E8F0"/>
+          <text x="15" y="163" fill="#94A3B8" font-size="10">0</text>
 
-      <div class="empty-chart">
-        <div class="empty-icon">▥</div>
-        <strong>Analytics will appear here</strong>
-        <p>Connect the processed dataset to display observed readmission patterns.</p>
-        <a routerLink="/analytics">Explore analytics →</a>
+          <!-- Series 2: Predictions (Teal Line) -->
+          <polyline
+            fill="none"
+            stroke="#08B5B0"
+            stroke-width="2"
+            points="45,110 85,95 125,75 165,100 205,65 245,85 285,75"
+          />
+          <circle cx="45" cy="110" r="3.5" fill="#08B5B0"/>
+          <circle cx="85" cy="95" r="3.5" fill="#08B5B0"/>
+          <circle cx="125" cy="75" r="3.5" fill="#08B5B0"/>
+          <circle cx="165" cy="100" r="3.5" fill="#08B5B0"/>
+          <circle cx="205" cy="65" r="3.5" fill="#08B5B0"/>
+          <circle cx="245" cy="85" r="3.5" fill="#08B5B0"/>
+          <circle cx="285" cy="75" r="3.5" fill="#08B5B0"/>
+
+          <!-- Series 1: Readmissions (Blue Line) -->
+          <polyline
+            fill="none"
+            stroke="#0875D1"
+            stroke-width="2"
+            points="45,135 85,120 125,105 165,128 205,95 245,115 285,100"
+          />
+          <circle cx="45" cy="135" r="3.5" fill="#0875D1"/>
+          <circle cx="85" cy="120" r="3.5" fill="#0875D1"/>
+          <circle cx="125" cy="105" r="3.5" fill="#0875D1"/>
+          <circle cx="165" cy="128" r="3.5" fill="#0875D1"/>
+          <circle cx="205" cy="95" r="3.5" fill="#0875D1"/>
+          <circle cx="245" cy="115" r="3.5" fill="#0875D1"/>
+          <circle cx="285" cy="100" r="3.5" fill="#0875D1"/>
+        </svg>
+
+        <div class="chart-x-labels">
+          <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span>
+        </div>
       </div>
-    </article>
-  </div>
+    </div>
 
-  <article class="panel recent-panel">
-    <div class="panel-heading">
-      <div>
-        <h2>Recent Predictions</h2>
-        <p>Your latest saved risk assessments</p>
+    <!-- Panel 3: Recent Predictions Table -->
+    <div class="panel card">
+      <div class="panel-header">
+        <h3 class="panel-title">Recent Predictions</h3>
       </div>
-      <a routerLink="/history">View history →</a>
+      <div class="panel-body table-responsive">
+        <table class="recent-table">
+          <thead>
+            <tr>
+              <th>Patient ID</th>
+              <th>Age</th>
+              <th>Risk</th>
+              <th>Category</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of recentPredictions; track p.id) {
+              <tr>
+                <td class="font-medium">{{ p.patientId }}</td>
+                <td>{{ p.age }}</td>
+                <td>{{ p.riskScore.toFixed(2) }}</td>
+                <td>
+                  <span class="badge" [class]="'badge-' + p.category.toLowerCase()">
+                    {{ p.category }}
+                  </span>
+                </td>
+                <td class="text-right">
+                  <a [routerLink]="['/prediction', p.id]" class="view-link">View</a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </div>
-
-    <div class="empty-table">
-      <p>No predictions have been saved yet.</p>
-      <a class="btn btn-outline" routerLink="/prediction/new">Start an assessment</a>
-    </div>
-  </article>
-
-  <article class="assistant-banner">
-    <div class="assistant-symbol">✧</div>
-    <div>
-      <h2>Meet MediAssist AI</h2>
-      <p>Explore model concepts, prediction explanations and project information.</p>
-    </div>
-    <a class="btn btn-light" routerLink="/assistant">Open AI Assistant →</a>
-  </article>
-</section>
+  </section>
+</div>

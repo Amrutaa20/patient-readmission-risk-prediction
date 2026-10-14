@@ -1,1 +1,113 @@
-<p>ai-assistant works!</p>
+<div class="assistant-page">
+  <div class="assistant-split-grid">
+    <!-- Left Chat Interface -->
+    <section class="card chat-card">
+      <div class="chat-header">
+        <div class="header-brand">
+          <div class="bot-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="10" rx="2"/>
+              <circle cx="12" cy="5" r="2"/>
+              <path d="M12 7v4"/>
+              <line x1="8" y1="16" x2="8" y2="16"/>
+              <line x1="16" y1="16" x2="16" y2="16"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="assistant-title">MediAssist AI</h2>
+            <span class="assistant-status">
+              <span class="status-dot"></span> Status: MediAssist AI Ready
+            </span>
+          </div>
+        </div>
+        <button type="button" class="btn btn-outline btn-sm clear-btn" (click)="clearChat()">
+          Clear Chat
+        </button>
+      </div>
+
+      <!-- Messages Stream -->
+      <div class="messages-container">
+        @for (m of messages; track $index) {
+          <div class="message-bubble-row" [class.user-row]="m.sender === 'user'">
+            @if (m.sender === 'ai') {
+              <div class="avatar-bot">AI</div>
+            }
+            <div class="message-bubble" [class.user-bubble]="m.sender === 'user'">
+              <p>{{ m.text }}</p>
+              <span class="message-time">{{ m.time }}</span>
+            </div>
+          </div>
+        }
+
+        <!-- Suggested Question Chips -->
+        <div class="suggested-chips-wrap">
+          <span class="chips-label">Suggested questions</span>
+          <div class="chips-list">
+            @for (q of suggestedQuestions; track q) {
+              <button type="button" class="question-chip" (click)="sendQuestion(q)">
+                {{ q }}
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Input Area -->
+      <form class="chat-input-bar" (ngSubmit)="sendQuestion()">
+        <input
+          type="text"
+          placeholder="Type your question..."
+          [(ngModel)]="userQuestion"
+          name="userQuestion"
+          class="chat-input"
+        />
+        <button type="submit" class="btn btn-primary send-btn" [disabled]="!userQuestion.trim()">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        </button>
+      </form>
+    </section>
+
+    <!-- Right Prediction Context Card -->
+    <aside class="card context-card">
+      <h3 class="context-title">Current Prediction Context</h3>
+      <div class="context-list">
+        <div class="context-row">
+          <span class="context-k">Prediction ID</span>
+          <span class="context-v font-bold">{{ patientContext.predictionId }}</span>
+        </div>
+        <div class="context-row">
+          <span class="context-k">Patient ID</span>
+          <span class="context-v">{{ patientContext.patientId }}</span>
+        </div>
+        <div class="context-row">
+          <span class="context-k">Probability</span>
+          <span class="context-v font-bold">{{ patientContext.probability.toFixed(2) }}</span>
+        </div>
+        <div class="context-row">
+          <span class="context-k">Risk Category</span>
+          <span class="badge badge-high">{{ patientContext.category }}</span>
+        </div>
+        <div class="context-row">
+          <span class="context-k">Model</span>
+          <span class="context-v">{{ patientContext.model }}</span>
+        </div>
+        <div class="context-row">
+          <span class="context-k">Timestamp</span>
+          <span class="context-v">{{ patientContext.timestamp }}</span>
+        </div>
+      </div>
+
+      <div class="safety-notice">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <p>MediAssist AI provides interpretative assistance for academic demonstration only. Not for clinical diagnosis.</p>
+      </div>
+    </aside>
+  </div>
+</div>

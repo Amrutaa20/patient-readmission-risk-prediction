@@ -1,0 +1,285 @@
+:host {
+  display: block;
+}
+
+.performance-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.5px;
+}
+
+.page-subtitle {
+  font-size: 13.5px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* 3 Model Cards */
+.models-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.model-card {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.champion-card {
+  border-top: 3px solid var(--primary);
+}
+
+.model-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.model-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.metric-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.metric-row:last-child {
+  border-bottom: none;
+}
+
+.metric-k {
+  color: var(--text-muted);
+}
+
+.metric-v {
+  color: var(--text-main);
+}
+
+.font-bold {
+  font-weight: 700;
+  color: var(--primary);
+}
+
+/* Middle 2-Column */
+.middle-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.chart-card {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.roc-legend {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.legend-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.line-dot {
+  width: 10px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.line-dot.xgb { background: #0875D1; }
+.line-dot.rf { background: #08B5B0; }
+.line-dot.lr { background: #F5AE24; }
+
+.roc-chart-wrap {
+  position: relative;
+  height: 220px;
+}
+
+.roc-svg {
+  width: 100%;
+  height: 200px;
+}
+
+.roc-axes-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text-light);
+  padding: 0 10px;
+}
+
+/* Confusion Matrix */
+.cm-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 220px;
+}
+
+.cm-matrix-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cm-top-labels {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  padding-right: 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.cm-top-labels span {
+  width: 100px;
+  text-align: center;
+}
+
+.cm-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cm-left-label {
+  width: 65px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+.cm-cell {
+  width: 100px;
+  height: 70px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+}
+
+.cm-cell.dark-blue {
+  background: #0875D1;
+}
+
+.cm-cell.mid-blue {
+  background: #0284C7;
+}
+
+.cm-cell.light-blue {
+  background: #E2E8F0;
+  color: var(--text-main);
+}
+
+.cm-count {
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.cm-type {
+  font-size: 9px;
+  opacity: 0.85;
+  margin-top: 4px;
+}
+
+/* Feature Importance */
+.feature-imp-card {
+  padding: 24px;
+}
+
+.feature-bars-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.feature-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.feature-name {
+  width: 160px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-main);
+}
+
+.feature-track {
+  flex: 1;
+  height: 8px;
+  background: #F1F5F9;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.feature-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #0284C7 0%, #0875D1 100%);
+  border-radius: 9999px;
+}
+
+.feature-num {
+  width: 40px;
+  text-align: right;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+@media (max-width: 900px) {
+  .models-grid {
+    grid-template-columns: 1fr;
+  }
+  .middle-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

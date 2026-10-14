@@ -1,1 +1,135 @@
-<p>settings works!</p>
+<div class="settings-page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">Settings</h1>
+      <p class="page-subtitle">Manage your preferences and application settings.</p>
+    </div>
+  </header>
+
+  <form (ngSubmit)="saveSettings()" class="settings-form">
+    <div class="settings-grid">
+      <!-- Profile Card -->
+      <section class="card settings-card">
+        <h3 class="section-title">Profile Information</h3>
+        <div class="form-group">
+          <label for="doctorName">Full Name</label>
+          <input
+            id="doctorName"
+            type="text"
+            class="form-control"
+            [(ngModel)]="name"
+            name="name"
+          />
+        </div>
+        <div class="form-group">
+          <label for="doctorRole">Role</label>
+          <input
+            id="doctorRole"
+            type="text"
+            class="form-control"
+            [(ngModel)]="role"
+            name="role"
+          />
+        </div>
+      </section>
+
+      <!-- Display Preferences Card -->
+      <section class="card settings-card">
+        <h3 class="section-title">Display Preferences</h3>
+        <div class="form-group">
+          <label>Interface Theme</label>
+          <div class="theme-toggle-row">
+            <button
+              type="button"
+              class="theme-btn"
+              [class.active]="theme === 'light'"
+              (click)="theme = 'light'"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="5"/>
+                <line x1="12" y1="1" x2="12" y2="3"/>
+                <line x1="12" y1="21" x2="12" y2="23"/>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                <line x1="1" y1="12" x2="3" y2="12"/>
+                <line x1="21" y1="12" x2="23" y2="12"/>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+              </svg>
+              Light
+            </button>
+            <button
+              type="button"
+              class="theme-btn"
+              [class.active]="theme === 'dark'"
+              (click)="theme = 'dark'"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+              </svg>
+              Dark
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Prediction Settings Card -->
+      <section class="card settings-card">
+        <h3 class="section-title">Prediction Settings</h3>
+        <div class="form-group">
+          <label for="defaultModel">Default Scoring Model</label>
+          <select id="defaultModel" class="form-control" [(ngModel)]="defaultModel" name="defaultModel">
+            <option value="XGBoost">XGBoost (Recommended - Champion)</option>
+            <option value="Random Forest">Random Forest</option>
+            <option value="Logistic Regression">Logistic Regression</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Risk Threshold Scale</label>
+          <div class="threshold-chips">
+            <span class="threshold-chip green">Low: &lt; 0.30</span>
+            <span class="threshold-chip yellow">Med: 0.30 - 0.60</span>
+            <span class="threshold-chip red">High: &gt; 0.60</span>
+          </div>
+        </div>
+
+        <div class="checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="showExplanations" name="showExplanations" />
+            <span>Show Feature Explanations on Results</span>
+          </label>
+        </div>
+      </section>
+
+      <!-- Privacy & Data Card -->
+      <section class="card settings-card">
+        <h3 class="section-title">Privacy &amp; Data</h3>
+        <div class="form-group">
+          <label for="retention">Data Retention</label>
+          <select id="retention" class="form-control" [(ngModel)]="dataRetention" name="retention">
+            <option value="7">Keep for 7 days</option>
+            <option value="30">Keep for 30 days</option>
+            <option value="90">Keep for 90 days</option>
+          </select>
+        </div>
+
+        <div class="clear-data-row">
+          <button type="button" class="btn btn-outline clear-demo-btn">
+            Clear Demo Data
+          </button>
+        </div>
+      </section>
+    </div>
+
+    <!-- Actions Row -->
+    <div class="settings-actions-footer">
+      @if (isSaved) {
+        <span class="save-msg">Changes saved successfully!</span>
+      }
+      <button type="submit" class="btn btn-primary save-btn">
+        Save Changes
+      </button>
+    </div>
+  </form>
+</div>

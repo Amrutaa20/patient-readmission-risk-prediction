@@ -1,1 +1,144 @@
-<p>patients works!</p>
+<div class="patients-page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">Patient Records</h1>
+      <p class="page-subtitle">Browse available patient records and review readmission risk assessments.</p>
+    </div>
+  </header>
+
+  <!-- Filter Card -->
+  <section class="card filter-card">
+    <div class="filters-grid">
+      <div class="filter-group">
+        <label>Search by Patient ID</label>
+        <input
+          type="text"
+          [(ngModel)]="searchId"
+          placeholder="e.g. P-1001"
+          class="form-control"
+        />
+      </div>
+
+      <div class="filter-group">
+        <label>Age Range</label>
+        <select [(ngModel)]="selectedAge" class="form-control">
+          <option value="All">All</option>
+          <option value="35-45">35-45</option>
+          <option value="45-55">45-55</option>
+          <option value="55-65">55-65</option>
+          <option value="65-75">65-75</option>
+          <option value="75+">75+</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Gender</label>
+        <select [(ngModel)]="selectedGender" class="form-control">
+          <option value="All">All</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Diagnosis</label>
+        <select [(ngModel)]="selectedDiagnosis" class="form-control">
+          <option value="All">All</option>
+          <option value="Diabetes">Diabetes</option>
+          <option value="Hypertension">Hypertension</option>
+          <option value="COPD">COPD</option>
+          <option value="CHF">CHF</option>
+          <option value="Circulatory">Circulatory</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Previous Admissions</label>
+        <select [(ngModel)]="selectedPrevAdmissions" class="form-control">
+          <option value="All">All</option>
+          <option value="0">0</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3+">3+</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Risk Category</label>
+        <select [(ngModel)]="selectedRisk" class="form-control">
+          <option value="All">All</option>
+          <option value="High">High</option>
+          <option value="Medium">Medium</option>
+          <option value="Low">Low</option>
+        </select>
+      </div>
+
+      <div class="filter-action">
+        <button type="button" class="btn btn-primary" (click)="applyFilters()">
+          Apply Filters
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Table Card -->
+  <section class="card table-card">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Patient ID</th>
+            <th>Age</th>
+            <th>Gender</th>
+            <th>Diagnosis</th>
+            <th>Prev. Admissions</th>
+            <th>Last Prediction</th>
+            <th>Risk Category</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (p of filteredPatients; track p.id) {
+            <tr>
+              <td class="id-col">{{ p.id }}</td>
+              <td>{{ p.age }}</td>
+              <td>{{ p.gender }}</td>
+              <td>{{ p.diagnosis }}</td>
+              <td>{{ p.prevAdmissions }}</td>
+              <td>{{ p.lastPrediction }}</td>
+              <td>
+                <span class="badge" [class]="'badge-' + p.riskCategory.toLowerCase()">
+                  {{ p.riskCategory }}
+                </span>
+              </td>
+              <td>
+                <a [routerLink]="['/prediction', p.predictionId]" class="btn btn-primary btn-sm">
+                  View
+                </a>
+              </td>
+            </tr>
+          }
+          @if (filteredPatients.length === 0) {
+            <tr>
+              <td colspan="8" class="text-center empty-cell">No matching patient records found.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-footer">
+      <span class="pagination-count">Showing 1-{{ filteredPatients.length }} of 100 patients</span>
+      <div class="pagination-buttons">
+        <button class="page-btn" disabled>&lt;</button>
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <button class="page-btn">3</button>
+        <button class="page-btn">4</button>
+        <button class="page-btn">5</button>
+        <button class="page-btn">&gt;</button>
+      </div>
+    </div>
+  </section>
+</div>

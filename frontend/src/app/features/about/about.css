@@ -1,0 +1,145 @@
+:host {
+  display: block;
+}
+
+.about-page {
+  display: flex;
+  flex-direction: column;
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.about-card {
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 20px;
+  letter-spacing: -0.3px;
+}
+
+.meta-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.meta-row {
+  display: flex;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.meta-row.block-row {
+  flex-direction: column;
+  gap: 6px;
+}
+
+.meta-k {
+  color: var(--text-muted);
+  font-weight: 600;
+  min-width: 140px;
+  flex-shrink: 0;
+}
+
+.meta-v {
+  color: var(--text-main);
+  line-height: 1.45;
+}
+
+.font-bold {
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.meta-desc {
+  font-size: 13px;
+  color: var(--text-main);
+  line-height: 1.55;
+  background: #F8FAFC;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+}
+
+.obj-list {
+  margin-left: 20px;
+  font-size: 13px;
+  color: var(--text-main);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Architecture Flow */
+.architecture-flow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 20px 0;
+  overflow-x: auto;
+}
+
+.flow-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  min-width: 90px;
+}
+
+.step-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+}
+
+.step-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.step-icon.angular { background: #DD0031; }
+.step-icon.fastapi { background: #059669; }
+.step-icon.pipeline { background: #0284C7; }
+.step-icon.model { background: #7C3AED; }
+.step-icon.result { background: #20B981; }
+
+.step-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.step-sub {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.flow-arrow {
+  font-size: 18px;
+  color: var(--text-light);
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 1000px) {
+  .about-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

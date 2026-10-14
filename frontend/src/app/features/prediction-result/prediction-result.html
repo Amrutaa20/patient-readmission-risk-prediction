@@ -1,1 +1,157 @@
-<p>prediction-result works!</p>
+<div class="result-page">
+  <!-- Top Risk Assessment Card -->
+  <section class="card assessment-card">
+    <div class="assessment-header">
+      <h2 class="card-title">Readmission Risk Assessment</h2>
+    </div>
+
+    <div class="assessment-body">
+      <!-- Left: Big Circular Gauge -->
+      <div class="gauge-section">
+        <div class="gauge-circle-wrap">
+          <svg class="gauge-svg" viewBox="0 0 160 160">
+            <!-- Background circle -->
+            <circle cx="80" cy="80" r="62" fill="none" stroke="#F1F5F9" stroke-width="14"/>
+            <!-- Active arc -->
+            <circle
+              cx="80"
+              cy="80"
+              r="62"
+              fill="none"
+              [attr.stroke]="riskCategory === 'High' ? '#F04452' : riskCategory === 'Medium' ? '#F5AE24' : '#20B981'"
+              stroke-width="14"
+              [attr.stroke-dasharray]="(probability * 389).toFixed(0) + ' 389'"
+              stroke-dashoffset="0"
+              stroke-linecap="round"
+            />
+          </svg>
+          <div class="gauge-center">
+            <span class="gauge-percent">{{ (probability * 100).toFixed(0) }}%</span>
+            <span class="gauge-sub">Readmission Probability</span>
+          </div>
+        </div>
+
+        <div class="gauge-badge-row">
+          <span class="badge" [class]="'badge-' + riskCategory.toLowerCase()">
+            {{ riskCategory }} Risk
+          </span>
+          <span class="category-label">Risk Category</span>
+        </div>
+
+        <p class="gauge-note">This is a model-generated estimate, not a confirmed clinical outcome.</p>
+      </div>
+
+      <!-- Right: Model Information Panel -->
+      <div class="model-info-panel">
+        <h4 class="panel-subtitle">Model Information</h4>
+        <div class="info-list">
+          <div class="info-row">
+            <span class="info-key">Model Used</span>
+            <span class="info-val font-semibold">{{ modelUsed }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">Version</span>
+            <span class="info-val">{{ version }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">Timestamp</span>
+            <span class="info-val">{{ timestamp }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">Risk Threshold</span>
+            <span class="info-val font-semibold">{{ (threshold * 100).toFixed(0) }}%</span>
+          </div>
+          <div class="info-row scale-row">
+            <span class="info-key">Risk Scale</span>
+            <span class="info-val scale-val">
+              <span class="text-green">Low: &lt;30%</span> ·
+              <span class="text-yellow">Medium: 30-60%</span> ·
+              <span class="text-red">High: &gt;60%</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Two Column Bottom Section -->
+  <div class="bottom-grid">
+    <!-- Key Contributing Factors -->
+    <section class="card factor-card">
+      <div class="section-card-header">
+        <h3 class="section-title">Key Contributing Factors</h3>
+      </div>
+      <div class="factors-list">
+        @for (f of factors; track f.name) {
+          <div class="factor-row">
+            <div class="factor-label-row">
+              <span class="factor-name">{{ f.name }}</span>
+              <span class="factor-weight">{{ f.weight.toFixed(2) }}</span>
+            </div>
+            <div class="bar-track">
+              <div
+                class="bar-fill"
+                [class]="f.barClass"
+                [style.width.%]="(f.weight / 0.35) * 100"
+              ></div>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Clinical Review Considerations -->
+    <section class="card checklist-card">
+      <div class="section-card-header">
+        <h3 class="section-title">Clinical Review Considerations</h3>
+      </div>
+      <ul class="considerations-list">
+        @for (c of clinicalConsiderations; track c) {
+          <li class="consideration-item">
+            <div class="check-icon-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+            <span>{{ c }}</span>
+          </li>
+        }
+      </ul>
+    </section>
+  </div>
+
+  <!-- Actions Row -->
+  <footer class="actions-row">
+    <div class="left-actions">
+      <a routerLink="/patients" class="btn btn-primary">
+        View Patient Details
+      </a>
+      <button type="button" class="btn btn-outline" (click)="savePrediction()">
+        @if (isSaved) {
+          <span>Saved &check;</span>
+        } @else {
+          <span>Save Prediction</span>
+        }
+      </button>
+      <button type="button" class="btn btn-outline" (click)="printReport()">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 6 2 18 2 18 9"/>
+          <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+          <rect x="6" y="14" width="12" height="8"/>
+        </svg>
+        Print Report
+      </button>
+    </div>
+
+    <a routerLink="/assistant" class="btn btn-teal">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="11" width="18" height="10" rx="2"/>
+        <circle cx="12" cy="5" r="2"/>
+        <path d="M12 7v4"/>
+        <line x1="8" y1="16" x2="8" y2="16"/>
+        <line x1="16" y1="16" x2="16" y2="16"/>
+      </svg>
+      Ask AI Assistant
+    </a>
+  </footer>
+</div>

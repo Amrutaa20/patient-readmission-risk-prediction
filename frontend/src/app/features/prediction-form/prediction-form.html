@@ -1,67 +1,268 @@
-<main class="prediction-page">
-  <div class="page-heading">
-    <span class="eyebrow">MACHINE LEARNING</span>
-    <h1>Readmission Prediction</h1>
-    <p>Estimate 30-day readmission risk using an existing dataset record.</p>
-  </div>
+<div class="prediction-page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">New Risk Assessment</h1>
+      <p class="page-subtitle">Enter the available patient and encounter information to estimate the probability of readmission within 30 days.</p>
+    </div>
+  </header>
 
-  <section class="prediction-card">
-    <h2>Test a Dataset Record</h2>
-    <p>Select a row index from 0 to 101765 in the processed dataset.</p>
-
+  <!-- Assessment Form Card -->
+  <section class="card form-card">
     <form (ngSubmit)="predict()">
-      <label for="rowIndex">Dataset Row Index</label>
-      <input
-        id="rowIndex"
-        name="rowIndex"
-        type="number"
-        min="0"
-        max="101765"
-        step="1"
-        [(ngModel)]="rowIndex"
-        required
-      />
+      <!-- 1. Patient Information -->
+      <div class="form-section">
+        <h3 class="section-title">1. Patient Information</h3>
+        <div class="form-grid-3">
+          <div class="form-group">
+            <label for="patientId">Patient ID <span class="text-muted">(optional)</span></label>
+            <input
+              id="patientId"
+              type="text"
+              class="form-control"
+              placeholder="e.g. P-1001"
+              [(ngModel)]="patientId"
+              name="patientId"
+            />
+          </div>
 
-      <button type="submit" [disabled]="loading">
-        {{ loading ? 'Analyzing...' : 'Predict Readmission Risk' }}
-      </button>
+          <div class="form-group">
+            <label for="ageRange">Age</label>
+            <select id="ageRange" class="form-control" [(ngModel)]="ageRange" name="ageRange">
+              <option value="">Select age range</option>
+              <option value="[18-30)">[18-30)</option>
+              <option value="[30-40)">[30-40)</option>
+              <option value="[40-50)">[40-50)</option>
+              <option value="[50-60)">[50-60)</option>
+              <option value="[60-70)">[60-70)</option>
+              <option value="[70-80)">[70-80)</option>
+              <option value="[80-90)">[80-90)</option>
+              <option value="[90-100)">[90-100)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="gender">Gender</label>
+            <select id="gender" class="form-control" [(ngModel)]="gender" name="gender">
+              <option value="">Select gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Diagnosis Information -->
+      <div class="form-section">
+        <h3 class="section-title">2. Diagnosis Information</h3>
+        <div class="form-grid-3">
+          <div class="form-group">
+            <label for="primaryDiagnosis">Primary Diagnosis</label>
+            <select id="primaryDiagnosis" class="form-control" [(ngModel)]="primaryDiagnosis" name="primaryDiagnosis">
+              <option value="">Select diagnosis</option>
+              <option value="Diabetes">Diabetes</option>
+              <option value="Circulatory">Circulatory (Heart/Vascular)</option>
+              <option value="Respiratory">Respiratory (COPD/Pneumonia)</option>
+              <option value="Digestive">Digestive</option>
+              <option value="Genitourinary">Genitourinary</option>
+              <option value="Musculoskeletal">Musculoskeletal</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="secondaryDiagnosis">Secondary Diagnosis</label>
+            <select id="secondaryDiagnosis" class="form-control" [(ngModel)]="secondaryDiagnosis" name="secondaryDiagnosis">
+              <option value="">Select diagnosis</option>
+              <option value="Hypertension">Hypertension</option>
+              <option value="Diabetes">Diabetes</option>
+              <option value="Circulatory">Circulatory</option>
+              <option value="Respiratory">Respiratory</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="numDiagnoses">Number of Diagnoses</label>
+            <select id="numDiagnoses" class="form-control" [(ngModel)]="numDiagnoses" name="numDiagnoses">
+              @for (n of [1,2,3,4,5,6,7,8,9,10,12,14,16]; track n) {
+                <option [value]="n">{{ n }}</option>
+              }
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Treatment and Medication History -->
+      <div class="form-section">
+        <h3 class="section-title">3. Treatment and Medication History</h3>
+        <div class="form-grid-3">
+          <div class="form-group">
+            <label for="medication">Medication</label>
+            <select id="medication" class="form-control" [(ngModel)]="medication" name="medication">
+              <option value="">Select medication</option>
+              <option value="Insulin">Insulin</option>
+              <option value="Metformin">Metformin</option>
+              <option value="Glipizide">Glipizide</option>
+              <option value="Glyburide">Glyburide</option>
+              <option value="Multiple">Multiple Agents</option>
+              <option value="No Meds">No Diabetes Meds</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="numMedications">Number of Medications</label>
+            <input
+              id="numMedications"
+              type="number"
+              min="1"
+              max="81"
+              class="form-control"
+              placeholder="e.g. 18"
+              [(ngModel)]="numMedications"
+              name="numMedications"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="medicationChanges">Medication Changes</label>
+            <select id="medicationChanges" class="form-control" [(ngModel)]="medicationChanges" name="medicationChanges">
+              <option value="Yes">Yes (Dosage / Drug Change)</option>
+              <option value="No">No (Maintained)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Previous Hospital Utilization -->
+      <div class="form-section">
+        <h3 class="section-title">4. Previous Hospital Utilization</h3>
+        <div class="form-grid-3">
+          <div class="form-group">
+            <label for="previousAdmissions">Previous Admissions</label>
+            <input
+              id="previousAdmissions"
+              type="number"
+              min="0"
+              max="15"
+              class="form-control"
+              [(ngModel)]="previousAdmissions"
+              name="previousAdmissions"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="emergencyVisits">Emergency Visits</label>
+            <input
+              id="emergencyVisits"
+              type="number"
+              min="0"
+              max="15"
+              class="form-control"
+              [(ngModel)]="emergencyVisits"
+              name="emergencyVisits"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="lengthOfStay">Length of Stay (days)</label>
+            <select id="lengthOfStay" class="form-control" [(ngModel)]="lengthOfStay" name="lengthOfStay">
+              @for (d of [1,2,3,4,5,6,7,8,9,10,12,14]; track d) {
+                <option [value]="d">{{ d }} day{{ d > 1 ? 's' : '' }}</option>
+              }
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Optional Dataset Record Index selector -->
+      <div class="dataset-sample-box">
+        <label for="rowIndex">Dataset Sample Record (Index: 0 - 101765)</label>
+        <div class="sample-row-input">
+          <input
+            id="rowIndex"
+            type="number"
+            min="0"
+            max="101765"
+            step="1"
+            class="form-control small-input"
+            [(ngModel)]="rowIndex"
+            name="rowIndex"
+          />
+          <span class="text-muted sample-hint">Points to a verified encounter from the 101,766 processed dataset for live model scoring.</span>
+        </div>
+      </div>
+
+      @if (errorMessage) {
+        <div class="alert alert-danger" role="alert">
+          {{ errorMessage }}
+        </div>
+      }
+
+      <!-- Form Actions Footer -->
+      <div class="form-actions-footer">
+        <div class="left-actions">
+          <button type="button" class="btn btn-outline" (click)="clearForm()">
+            Clear Form
+          </button>
+          <button type="button" class="btn btn-outline" (click)="loadSamplePatient()">
+            Load Sample Patient
+          </button>
+        </div>
+        <button type="submit" class="btn btn-primary predict-btn" [disabled]="loading">
+          @if (loading) {
+            <span class="spinner"></span>
+            <span>Analyzing...</span>
+          } @else {
+            <span>Predict Risk</span>
+          }
+        </button>
+      </div>
     </form>
-
-    @if (errorMessage) {
-      <div class="error-message" role="alert">{{ errorMessage }}</div>
-    }
   </section>
 
-  @if (result; as prediction) {
-    <section class="result-card">
-      <span class="eyebrow">PREDICTION RESULT</span>
-      <h2>{{ prediction.predicted_label }}</h2>
-
-      <div class="risk-value">
-        {{ (prediction.readmission_probability * 100).toFixed(2) }}%
-      </div>
-      <p>Estimated 30-day readmission probability</p>
-
-      <div class="result-details">
+  <!-- Prediction Result Card (Rendered below on submission) -->
+  @if (result; as p) {
+    <section class="card result-card">
+      <div class="result-header">
         <div>
-          <span>Dataset row</span>
-          <strong>{{ prediction.row_index }}</strong>
+          <span class="result-tag">ASSESSMENT RESULT</span>
+          <h2 class="result-title">{{ p.predicted_label }}</h2>
         </div>
-        <div>
-          <span>Predicted class</span>
-          <strong>{{ prediction.predicted_class }}</strong>
-        </div>
-        <div>
-          <span>Decision threshold</span>
-          <strong>{{ (prediction.threshold * 100).toFixed(0) }}%</strong>
-        </div>
-        <div>
-          <span>Actual dataset label</span>
-          <strong>{{ prediction.actual_label }}</strong>
-        </div>
+        <button type="button" class="btn btn-primary btn-sm" (click)="viewDetails()">
+          View Full Report &rarr;
+        </button>
       </div>
 
-      <p class="disclaimer">{{ prediction.note }}</p>
+      <div class="result-metrics-row">
+        <div class="risk-circle-box">
+          <div class="risk-circle" [class.high]="p.predicted_class === 1" [class.low]="p.predicted_class === 0">
+            <span class="risk-percent">{{ (p.readmission_probability * 100).toFixed(0) }}%</span>
+            <span class="risk-label">Probability</span>
+          </div>
+        </div>
+
+        <div class="result-details-grid">
+          <div class="detail-cell">
+            <span class="detail-label">Dataset Row</span>
+            <span class="detail-val">#{{ p.row_index }}</span>
+          </div>
+          <div class="detail-cell">
+            <span class="detail-label">Predicted Class</span>
+            <span class="detail-val">{{ p.predicted_class === 1 ? 'Readmitted (1)' : 'Not Readmitted (0)' }}</span>
+          </div>
+          <div class="detail-cell">
+            <span class="detail-label">Decision Threshold</span>
+            <span class="detail-val">{{ (p.threshold * 100).toFixed(0) }}%</span>
+          </div>
+          <div class="detail-cell">
+            <span class="detail-label">Actual Encounter Label</span>
+            <span class="detail-val">{{ p.actual_label === 1 ? 'Readmitted' : 'Not Readmitted' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <p class="disclaimer-note">{{ p.note }}</p>
     </section>
   }
-</main>
+</div>

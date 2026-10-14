@@ -1,1 +1,163 @@
-<p>about works!</p>
+<div class="about-page">
+  <div class="about-grid">
+    <!-- Card 1: Project Overview -->
+    <section class="card about-card">
+      <h3 class="card-title">Project Overview</h3>
+      <div class="meta-list">
+        <div class="meta-row">
+          <span class="meta-k">Project:</span>
+          <span class="meta-v font-bold">MediPredict AI — Patient Readmission Risk Prediction</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-k">Domain:</span>
+          <span class="meta-v">Healthcare</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-k">ML Task:</span>
+          <span class="meta-v">Binary Classification (Readmitted within 30 days)</span>
+        </div>
+        <div class="meta-row block-row">
+          <span class="meta-k">Problem Statement:</span>
+          <p class="meta-desc">
+            Predict whether a discharged patient is likely to be readmitted within 30 days using demographic information, diagnosis categories, treatment history, and hospital utilization records.
+          </p>
+        </div>
+        <div class="meta-row block-row">
+          <span class="meta-k">Objectives:</span>
+          <ul class="obj-list">
+            <li>Estimate 30-day patient readmission risk early</li>
+            <li>Improve healthcare delivery quality and care coordination</li>
+            <li>Reduce avoidable hospital readmission costs</li>
+            <li>Support clinical staff in discharge planning</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Card 2: System Architecture -->
+    <section class="card about-card">
+      <h3 class="card-title">System Architecture</h3>
+      <div class="architecture-flow">
+        <div class="flow-step">
+          <div class="step-icon angular">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 2 7 12 22 22 7 12 2"/>
+            </svg>
+          </div>
+          <span class="step-name">Angular Frontend</span>
+          <span class="step-sub">Dashboard &amp; UI</span>
+        </div>
+
+        <div class="flow-arrow">&rarr;</div>
+
+        <div class="flow-step">
+          <div class="step-icon fastapi">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+          </div>
+          <span class="step-name">FastAPI Backend</span>
+          <span class="step-sub">REST Endpoints</span>
+        </div>
+
+        <div class="flow-arrow">&rarr;</div>
+
+        <div class="flow-step">
+          <div class="step-icon pipeline">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="4" y1="21" x2="4" y2="14"/>
+              <line x1="4" y1="10" x2="4" y2="3"/>
+              <line x1="12" y1="21" x2="12" y2="12"/>
+              <line x1="12" y1="8" x2="12" y2="3"/>
+              <line x1="20" y1="21" x2="20" y2="16"/>
+              <line x1="20" y1="12" x2="20" y2="3"/>
+            </svg>
+          </div>
+          <span class="step-name">Preprocessing Pipeline</span>
+          <span class="step-sub">111 Features</span>
+        </div>
+
+        <div class="flow-arrow">&rarr;</div>
+
+        <div class="flow-step">
+          <div class="step-icon model">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="2" y1="12" x2="22" y2="12"/>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+          </div>
+          <span class="step-name">ML Model</span>
+          <span class="step-sub">XGBoost / RF</span>
+        </div>
+
+        <div class="flow-arrow">&rarr;</div>
+
+        <div class="flow-step">
+          <div class="step-icon result">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+          </div>
+          <span class="step-name">Prediction Result</span>
+          <span class="step-sub">Probability &amp; Class</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Card 3: Dataset Information -->
+    <section class="card about-card">
+      <h3 class="card-title">Dataset Information</h3>
+      <div class="meta-list">
+        <div class="meta-row">
+          <span class="meta-k">Dataset:</span>
+          <span class="meta-v font-bold">Diabetes 130-US Hospitals (1999-2008)</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-k">Source:</span>
+          <span class="meta-v">UCI Machine Learning Repository</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-k">Records Used:</span>
+          <span class="meta-v">101,766 encounters (after preprocessing)</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-k">Target Variable:</span>
+          <span class="meta-v">Readmitted in &lt;30 days (1: Yes, 0: No)</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-k">Features Used:</span>
+          <span class="meta-v">Age, Gender, Diagnosis (ICD-9), Medication Count, Previous Admissions, Length of Stay</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Card 4: Model Information -->
+    <section class="card about-card">
+      <h3 class="card-title">Model Information</h3>
+      <div class="meta-list">
+        <div class="meta-row">
+          <span class="meta-k">Algorithm:</span>
+          <span class="meta-v font-bold">Random Forest / XGBoost Classifier</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-k">Training Method:</span>
+          <span class="meta-v">Stratified Train/Test Split (80/20)</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-k">Evaluation Metrics:</span>
+          <span class="meta-v">ROC-AUC, F1 Score, Recall, Precision, PR-AUC</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-k">Operating Threshold:</span>
+          <span class="meta-v font-bold">0.40 (Tuned to prioritize Recall for clinical safety)</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-k">Model Version:</span>
+          <span class="meta-v">v1.0.0 (Production candidate)</span>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

@@ -1,30 +1,180 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
+:root {
+  /* Brand colors */
+  --sidebar-bg: #071E36;
+  --sidebar-hover: #0E2C4D;
+  --sidebar-active: #0875D1;
+  --sidebar-text: #BAC9D9;
+  --sidebar-text-active: #FFFFFF;
+
+  --primary: #0875D1;
+  --primary-hover: #065DA7;
+  --primary-light: #EBF5FE;
+
+  --teal: #08B5B0;
+  --teal-light: #E0F7F6;
+
+  /* App surfaces */
+  --bg-page: #F3F7FA;
+  --bg-card: #FFFFFF;
+  --border: #DCE8F4;
+  --border-subtle: #E8EEF5;
+
+  /* Text colors */
+  --text-main: #16324F;
+  --text-muted: #6B8299;
+  --text-light: #94A3B8;
+
+  /* Risk levels */
+  --risk-low: #20B981;
+  --risk-low-bg: #D1FAE5;
+  --risk-low-text: #065F46;
+
+  --risk-medium: #F5AE24;
+  --risk-medium-bg: #FEF3C7;
+  --risk-medium-text: #B45309;
+
+  --risk-high: #F04452;
+  --risk-high-bg: #FEE2E2;
+  --risk-high-text: #B91C1C;
+
+  /* Radius & Shadows */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --shadow-sm: 0 1px 3px rgba(15, 34, 58, 0.05);
+  --shadow-md: 0 4px 12px rgba(15, 34, 58, 0.06);
+}
+
 * {
   box-sizing: border-box;
-}
-
-html {
-  min-height: 100%;
-  background: #f8fafd;
-}
-
-body {
-  min-width: 320px;
-  min-height: 100vh;
   margin: 0;
-  font-family: 'Inter', Arial, sans-serif;
-  color: #273249;
+  padding: 0;
+}
+
+html, body {
+  min-height: 100%;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-page);
+  color: var(--text-main);
+  font-size: 14px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
 
-button,
-input,
-select,
-textarea {
+button, input, select, textarea {
   font: inherit;
 }
 
-button {
-  -webkit-tap-highlight-color: transparent;
+a {
+  color: var(--primary);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+/* Common UI Elements */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.badge-low {
+  background: var(--risk-low-bg);
+  color: var(--risk-low-text);
+}
+.badge-low::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--risk-low);
+}
+
+.badge-medium {
+  background: var(--risk-medium-bg);
+  color: var(--risk-medium-text);
+}
+.badge-medium::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--risk-medium);
+}
+
+.badge-high {
+  background: var(--risk-high-bg);
+  color: var(--risk-high-text);
+}
+.badge-high::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--risk-high);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: #FFFFFF;
+}
+.btn-primary:hover {
+  background: var(--primary-hover);
+  text-decoration: none;
+}
+
+.btn-outline {
+  background: #FFFFFF;
+  border-color: var(--border);
+  color: var(--text-main);
+}
+.btn-outline:hover {
+  background: #F8FAFC;
+  border-color: #CBD5E1;
+  text-decoration: none;
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.btn-teal {
+  background: var(--teal);
+  color: #FFFFFF;
+}
+.btn-teal:hover {
+  background: #069894;
+  text-decoration: none;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
 }
