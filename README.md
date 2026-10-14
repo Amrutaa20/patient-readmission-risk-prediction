@@ -193,8 +193,3 @@ The trained models and threshold metadata are exported in `models/`:
 - `scaler.pkl`: Fitted `StandardScaler` for inference
 - `champion_model_metadata.json`: Calibrated thresholds and metric metadata
 
----
-
-## 📜 License
-
-This project is licensed under the [MIT License](LICENSE).
