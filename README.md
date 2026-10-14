@@ -195,13 +195,6 @@ The trained models and threshold metadata are exported in `models/`:
 
 ---
 
-## 👥 Authors & Acknowledgments
-
-- **Author**: [Amruta](https://github.com/Amrutaa20)
-- **Dataset**: Strack, B., DeShazo, J. P., Gennings, C., et al. (2014). _Impact of HbA1c Measurement on Hospital Readmission Rates: Analysis of 70,000 Clinical Database Patient Records_. BioMed Research International.
-
----
-
 ## 📜 License
 
 This project is licensed under the [MIT License](LICENSE).
