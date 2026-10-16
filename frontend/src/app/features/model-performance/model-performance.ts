@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { PredictionApi, ModelComparisonResponse } from '../../core/services/prediction-api';
 
 @Component({
@@ -13,7 +13,7 @@ export class ModelPerformance implements OnInit {
   loading = false;
   errorMessage = '';
 
-  constructor(private predictionApi: PredictionApi) {}
+  constructor(private predictionApi: PredictionApi, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.loadComparison();
@@ -26,10 +26,12 @@ export class ModelPerformance implements OnInit {
       next: (comparison) => {
         this.comparison = comparison;
         this.loading = false;
+        this.cdr.markForCheck();
       },
       error: () => {
         this.errorMessage = 'Model evaluation metadata is unavailable.';
         this.loading = false;
+        this.cdr.markForCheck();
       }
     });
   }
