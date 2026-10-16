@@ -1,170 +1,77 @@
 <div class="analytics-page">
   <header class="page-header">
     <div>
-      <h1 class="page-title">Data Analytics &amp; Insights</h1>
-      <p class="page-subtitle">Explore patterns and trends in the dataset.</p>
+      <h1 class="page-title">Historical Dataset Analytics</h1>
+      <p class="page-subtitle">Readmission outcomes calculated from {{ analytics?.dataset_records?.toLocaleString() ?? 'the source dataset' }} encounters.</p>
     </div>
   </header>
 
-  <!-- Filter Card -->
-  <section class="card filter-card">
-    <div class="filters-grid">
-      <div class="filter-group">
-        <label>Age Group</label>
-        <select [(ngModel)]="ageGroup" class="form-control">
-          <option value="All">All</option>
-          <option value="18-30">18-30</option>
-          <option value="31-45">31-45</option>
-          <option value="46-60">46-60</option>
-          <option value="61-75">61-75</option>
-          <option value="75+">75+</option>
-        </select>
-      </div>
+  @if (loading) {
+    <section class="card chart-card" role="status">Loading dataset analytics...</section>
+  } @else if (errorMessage) {
+    <section class="card chart-card" role="alert"><p>{{ errorMessage }}</p><button type="button" class="btn btn-primary" (click)="loadAnalytics()">Retry</button></section>
+  } @else if (analytics) {
+    <section class="card analytics-note">
+      <strong>Outcome definition</strong>
+      <p>{{ analytics.target_definition }}</p>
+      <p>Bars show the historical rate of readmission within 30 days within each group. Counts are shown as readmissions / records in that group. These are dataset associations, not model predictions or causal effects.</p>
+    </section>
 
-      <div class="filter-group">
-        <label>Diagnosis</label>
-        <select [(ngModel)]="diagnosis" class="form-control">
-          <option value="All">All</option>
-          <option value="Diabetes">Diabetes</option>
-          <option value="Hypertension">Hypertension</option>
-          <option value="COPD">COPD</option>
-          <option value="CHF">CHF</option>
-        </select>
-      </div>
+    <div class="analytics-grid">
+      <section class="card chart-card">
+        <h3 class="chart-title">Historical readmission rate by age group</h3>
+        <div class="bar-chart-container"><div class="bar-chart">
+          @for (group of analytics.by_age; track group.label) {
+            <div class="bar-col"><span class="bar-val">{{ (group.rate * 100).toFixed(1) }}%</span><div class="bar-track"><div class="bar-fill" [style.height.%]="barHeight(group.rate, analytics.by_age)"></div></div><span class="bar-label">{{ group.label }}</span><small>{{ group.readmissions }}/{{ group.records }}</small></div>
+          }
+        </div></div>
+      </section>
 
-      <div class="filter-group">
-        <label>Gender</label>
-        <select [(ngModel)]="gender" class="form-control">
-          <option value="All">All</option>
-          <option value="Male">Male</option>
-          <option value="Female">Female</option>
-        </select>
-      </div>
+      <section class="card chart-card">
+        <h3 class="chart-title">Historical readmission rate by gender</h3>
+        <div class="bar-chart-container"><div class="bar-chart">
+          @for (group of analytics.by_gender; track group.label) {
+            <div class="bar-col"><span class="bar-val">{{ (group.rate * 100).toFixed(1) }}%</span><div class="bar-track"><div class="bar-fill" [style.height.%]="barHeight(group.rate, analytics.by_gender)"></div></div><span class="bar-label">{{ group.label }}</span><small>{{ group.readmissions }}/{{ group.records }}</small></div>
+          }
+        </div></div>
+      </section>
 
-      <div class="filter-group">
-        <label>Previous Admissions</label>
-        <select [(ngModel)]="prevAdmissions" class="form-control">
-          <option value="All">All</option>
-          <option value="0">0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3+">3+</option>
-        </select>
-      </div>
+      <section class="card chart-card">
+        <h3 class="chart-title">Historical readmission rate by primary diagnosis group</h3>
+        <div class="bar-chart-container"><div class="bar-chart">
+          @for (group of analytics.by_primary_diagnosis_group; track group.label) {
+            <div class="bar-col"><span class="bar-val">{{ (group.rate * 100).toFixed(1) }}%</span><div class="bar-track"><div class="bar-fill" [style.height.%]="barHeight(group.rate, analytics.by_primary_diagnosis_group)"></div></div><span class="bar-label">{{ group.label }}</span><small>{{ group.readmissions }}/{{ group.records }}</small></div>
+          }
+        </div></div>
+      </section>
 
-      <div class="filter-group">
-        <label>Encounter Type</label>
-        <select [(ngModel)]="encounterType" class="form-control">
-          <option value="All">All</option>
-          <option value="Emergency">Emergency</option>
-          <option value="Inpatient">Inpatient</option>
-          <option value="Elective">Elective</option>
-        </select>
-      </div>
+      <section class="card chart-card">
+        <h3 class="chart-title">Historical readmission rate by previous inpatient visits</h3>
+        <div class="bar-chart-container"><div class="bar-chart">
+          @for (group of analytics.by_prior_inpatient_visits; track group.label) {
+            <div class="bar-col"><span class="bar-val">{{ (group.rate * 100).toFixed(1) }}%</span><div class="bar-track"><div class="bar-fill" [style.height.%]="barHeight(group.rate, analytics.by_prior_inpatient_visits)"></div></div><span class="bar-label">{{ group.label }}</span><small>{{ group.readmissions }}/{{ group.records }}</small></div>
+          }
+        </div></div>
+      </section>
+
+      <section class="card chart-card">
+        <h3 class="chart-title">Historical readmission rate by admission type</h3>
+        <div class="bar-chart-container"><div class="bar-chart">
+          @for (group of analytics.by_admission_type; track group.label) {
+            <div class="bar-col"><span class="bar-val">{{ (group.rate * 100).toFixed(1) }}%</span><div class="bar-track"><div class="bar-fill" [style.height.%]="barHeight(group.rate, analytics.by_admission_type)"></div></div><span class="bar-label">{{ group.label }}</span><small>{{ group.readmissions }}/{{ group.records }}</small></div>
+          }
+        </div></div>
+      </section>
+
+      <section class="card chart-card">
+        <h3 class="chart-title">Historical readmission rate by length of stay</h3>
+        <div class="bar-chart-container"><div class="bar-chart">
+          @for (group of analytics.by_length_of_stay; track group.label) {
+            <div class="bar-col"><span class="bar-val">{{ (group.rate * 100).toFixed(1) }}%</span><div class="bar-track"><div class="bar-fill" [style.height.%]="barHeight(group.rate, analytics.by_length_of_stay)"></div></div><span class="bar-label">{{ group.label }}</span><small>{{ group.readmissions }}/{{ group.records }}</small></div>
+          }
+        </div></div>
+      </section>
     </div>
-  </section>
-
-  <!-- 2x2 Charts Grid -->
-  <div class="analytics-grid">
-    <!-- Chart 1: Readmission Rate by Age Group -->
-    <section class="card chart-card">
-      <h3 class="chart-title">Readmission Rate by Age Group</h3>
-      <div class="bar-chart-container">
-        <div class="bar-chart">
-          @for (b of ageBars; track b.label) {
-            <div class="bar-col">
-              <span class="bar-val">{{ b.rate }}%</span>
-              <div class="bar-track">
-                <div class="bar-fill" [style.height.%]="b.height"></div>
-              </div>
-              <span class="bar-label">{{ b.label }}</span>
-            </div>
-          }
-        </div>
-      </div>
-    </section>
-
-    <!-- Chart 2: Readmission Rate by Diagnosis -->
-    <section class="card chart-card">
-      <h3 class="chart-title">Readmission Rate by Diagnosis</h3>
-      <div class="bar-chart-container">
-        <div class="bar-chart">
-          @for (b of diagnosisBars; track b.label) {
-            <div class="bar-col">
-              <span class="bar-val">{{ b.rate }}%</span>
-              <div class="bar-track">
-                <div class="bar-fill" [style.height.%]="b.height"></div>
-              </div>
-              <span class="bar-label">{{ b.label }}</span>
-            </div>
-          }
-        </div>
-      </div>
-    </section>
-
-    <!-- Chart 3: Previous Admissions vs Readmission -->
-    <section class="card chart-card">
-      <div class="chart-header-row">
-        <h3 class="chart-title">Previous Admissions vs Readmission</h3>
-        <span class="sub-legend">
-          <span class="dot-blue"></span> Readmission Rate
-        </span>
-      </div>
-      <div class="line-chart-wrap">
-        <svg class="line-svg" viewBox="0 0 320 160" preserveAspectRatio="none">
-          <!-- Horizontal dashed gridlines -->
-          <line x1="20" y1="20" x2="300" y2="20" stroke="#E8EEF5" stroke-dasharray="3,3"/>
-          <line x1="20" y1="55" x2="300" y2="55" stroke="#E8EEF5" stroke-dasharray="3,3"/>
-          <line x1="20" y1="90" x2="300" y2="90" stroke="#E8EEF5" stroke-dasharray="3,3"/>
-          <line x1="20" y1="125" x2="300" y2="125" stroke="#E8EEF5" stroke-dasharray="3,3"/>
-          <line x1="20" y1="150" x2="300" y2="150" stroke="#CBD5E1"/>
-
-          <!-- Trending Area Fill -->
-          <polygon
-            points="35,140 95,120 155,95 215,60 275,30 275,150 35,150"
-            fill="rgba(8, 117, 209, 0.08)"
-          />
-
-          <!-- Upward Trending Line -->
-          <polyline
-            fill="none"
-            stroke="#0875D1"
-            stroke-width="2.5"
-            points="35,140 95,120 155,95 215,60 275,30"
-          />
-          <circle cx="35" cy="140" r="4" fill="#0875D1"/>
-          <circle cx="95" cy="120" r="4" fill="#0875D1"/>
-          <circle cx="155" cy="95" r="4" fill="#0875D1"/>
-          <circle cx="215" cy="60" r="4" fill="#0875D1"/>
-          <circle cx="275" cy="30" r="4" fill="#0875D1"/>
-        </svg>
-
-        <div class="line-x-axis">
-          <span>0</span>
-          <span>1</span>
-          <span>2</span>
-          <span>3</span>
-          <span>4+</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- Chart 4: Length of Stay vs Readmission -->
-    <section class="card chart-card">
-      <h3 class="chart-title">Length of Stay vs Readmission</h3>
-      <div class="bar-chart-container">
-        <div class="bar-chart">
-          @for (b of losBars; track b.label) {
-            <div class="bar-col">
-              <span class="bar-val">{{ b.rate }}%</span>
-              <div class="bar-track">
-                <div class="bar-fill" [style.height.%]="b.height"></div>
-              </div>
-              <span class="bar-label">{{ b.label }}</span>
-            </div>
-          }
-        </div>
-      </div>
-    </section>
-  </div>
+    <p class="analytics-source">Source: {{ analytics.source }}. No patient-level records are returned by the analytics endpoint.</p>
+  }
 </div>

@@ -1,0 +1,73 @@
+{
+  "source": "notebooks/07_model_comparison.ipynb, reproduced from saved model artifacts",
+  "evaluation_split": {
+    "method": "stratified train_test_split",
+    "random_state": 42,
+    "train_rows": 81412,
+    "test_rows": 20354,
+    "test_positive_rows": 2271,
+    "test_negative_rows": 18083,
+    "features": 111
+  },
+  "deployment_model": "XGBoost",
+  "selection_status": "provisional",
+  "selection_note": "The repository's original experiments used the holdout test set for threshold selection. CatBoost also used it for early stopping. These results are historical comparisons, not an unbiased final model selection; use a separate validation set and a newly reserved test set before making a validated champion claim.",
+  "models": [
+    {
+      "name": "Logistic Regression",
+      "threshold": 0.45,
+      "roc_auc": 0.648976,
+      "pr_auc": 0.202145,
+      "precision": 0.147959,
+      "recall": 0.702334,
+      "f1_score": 0.244426,
+      "accuracy": 0.515525,
+      "true_negative": 8898,
+      "false_positive": 9185,
+      "false_negative": 676,
+      "true_positive": 1595
+    },
+    {
+      "name": "Random Forest",
+      "threshold": 0.25,
+      "roc_auc": 0.660048,
+      "pr_auc": 0.212001,
+      "precision": 0.182265,
+      "recall": 0.539410,
+      "f1_score": 0.272464,
+      "accuracy": 0.678589,
+      "true_negative": 12587,
+      "false_positive": 5496,
+      "false_negative": 1046,
+      "true_positive": 1225
+    },
+    {
+      "name": "XGBoost",
+      "threshold": 0.4,
+      "roc_auc": 0.687475,
+      "pr_auc": 0.234115,
+      "precision": 0.150554,
+      "recall": 0.813298,
+      "f1_score": 0.254075,
+      "accuracy": 0.467181,
+      "true_negative": 7662,
+      "false_positive": 10421,
+      "false_negative": 424,
+      "true_positive": 1847
+    },
+    {
+      "name": "CatBoost",
+      "threshold": 0.4,
+      "roc_auc": 0.687060,
+      "pr_auc": 0.233427,
+      "precision": 0.149422,
+      "recall": 0.819022,
+      "f1_score": 0.252735,
+      "accuracy": 0.459615,
+      "true_negative": 7495,
+      "false_positive": 10588,
+      "false_negative": 411,
+      "true_positive": 1860
+    }
+  ]
+}

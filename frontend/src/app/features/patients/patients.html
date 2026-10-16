@@ -1,144 +1,83 @@
 <div class="patients-page">
   <header class="page-header">
     <div>
-      <h1 class="page-title">Patient Records</h1>
-      <p class="page-subtitle">Browse available patient records and review readmission risk assessments.</p>
+      <h1 class="page-title">Patients</h1>
+      <p class="page-subtitle">Browse a fixed, first-50-record sample from the Diabetes 130-US Hospitals dataset.</p>
     </div>
   </header>
 
-  <!-- Filter Card -->
+  <nav class="view-tabs" aria-label="Patient data views">
+    <button type="button" class="view-tab active">Dataset Records</button>
+    <a routerLink="/prediction-history" class="view-tab">Prediction History</a>
+  </nav>
+
+  <p class="data-note">These are historical dataset encounters. The row number is a dataset position, not a patient identifier. Historical outcome is not a model prediction.</p>
+
   <section class="card filter-card">
     <div class="filters-grid">
-      <div class="filter-group">
-        <label>Search by Patient ID</label>
-        <input
-          type="text"
-          [(ngModel)]="searchId"
-          placeholder="e.g. P-1001"
-          class="form-control"
-        />
+      <div class="filter-group search-group">
+        <label for="datasetSearch">Search dataset records</label>
+        <form class="search-form" (ngSubmit)="applyDatasetFilters()">
+          <input id="datasetSearch" name="datasetSearch" type="search" [(ngModel)]="search" placeholder="Age, gender, specialty, admission category..." class="form-control" />
+          <button type="submit" class="btn btn-primary" [disabled]="loading">Search</button>
+        </form>
+        <details class="search-help">
+          <summary>Search help</summary>
+          <div class="search-help-content">
+            <p>Search uses substring matching only within the fixed sample (dataset rows 0-49): row position; age group, gender, and race; medical specialty; admission, discharge, and source labels or codes; stay length, lab/procedure/medication counts, prior inpatient visits; and the recorded readmission code.</p>
+            <p>Examples: <code>[50-60)</code>, <code>Female</code>, <code>Caucasian</code>, <code>Emergency</code>, <code>SNF</code>, or <code>&lt;30</code>. Admission, discharge, and source labels come from the project's ID mapping file. Age, gender, and race are also available as dropdown filters.</p>
+            <p>Typing or changing dropdowns does not update results yet. Press Search, Enter, or Apply Filters to submit all current criteria.</p>
+          </div>
+        </details>
       </div>
-
       <div class="filter-group">
-        <label>Age Range</label>
-        <select [(ngModel)]="selectedAge" class="form-control">
-          <option value="All">All</option>
-          <option value="35-45">35-45</option>
-          <option value="45-55">45-55</option>
-          <option value="55-65">55-65</option>
-          <option value="65-75">65-75</option>
-          <option value="75+">75+</option>
-        </select>
+        <label for="ageFilter">Age group</label>
+        <select id="ageFilter" name="ageFilter" [(ngModel)]="selectedAge" class="form-control"><option value="">All ages</option>@for (value of filters.age; track value) { <option [value]="value">{{ value }}</option> }</select>
       </div>
-
       <div class="filter-group">
-        <label>Gender</label>
-        <select [(ngModel)]="selectedGender" class="form-control">
-          <option value="All">All</option>
-          <option value="Male">Male</option>
-          <option value="Female">Female</option>
-        </select>
+        <label for="genderFilter">Gender</label>
+        <select id="genderFilter" name="genderFilter" [(ngModel)]="selectedGender" class="form-control"><option value="">All genders</option>@for (value of filters.gender; track value) { <option [value]="value">{{ value }}</option> }</select>
       </div>
-
       <div class="filter-group">
-        <label>Diagnosis</label>
-        <select [(ngModel)]="selectedDiagnosis" class="form-control">
-          <option value="All">All</option>
-          <option value="Diabetes">Diabetes</option>
-          <option value="Hypertension">Hypertension</option>
-          <option value="COPD">COPD</option>
-          <option value="CHF">CHF</option>
-          <option value="Circulatory">Circulatory</option>
-        </select>
+        <label for="raceFilter">Race</label>
+        <select id="raceFilter" name="raceFilter" [(ngModel)]="selectedRace" class="form-control"><option value="">All groups</option>@for (value of filters.race; track value) { <option [value]="value">{{ value }}</option> }</select>
       </div>
-
-      <div class="filter-group">
-        <label>Previous Admissions</label>
-        <select [(ngModel)]="selectedPrevAdmissions" class="form-control">
-          <option value="All">All</option>
-          <option value="0">0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3+">3+</option>
-        </select>
-      </div>
-
-      <div class="filter-group">
-        <label>Risk Category</label>
-        <select [(ngModel)]="selectedRisk" class="form-control">
-          <option value="All">All</option>
-          <option value="High">High</option>
-          <option value="Medium">Medium</option>
-          <option value="Low">Low</option>
-        </select>
-      </div>
-
-      <div class="filter-action">
-        <button type="button" class="btn btn-primary" (click)="applyFilters()">
-          Apply Filters
-        </button>
+      <div class="filter-action filter-actions">
+        <button type="button" class="btn btn-primary" (click)="applyDatasetFilters()" [disabled]="loading">Apply Filters</button>
+        <button type="button" class="btn btn-outline" (click)="clearDatasetFilters()" [disabled]="loading">Clear Filters</button>
       </div>
     </div>
+    @if (hasUnappliedDatasetChanges) { <p class="pending-filters" role="status">Search or filter changes are pending. Apply them to update the table.</p> }
   </section>
 
-  <!-- Table Card -->
   <section class="card table-card">
-    <div class="table-responsive">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Patient ID</th>
-            <th>Age</th>
-            <th>Gender</th>
-            <th>Diagnosis</th>
-            <th>Prev. Admissions</th>
-            <th>Last Prediction</th>
-            <th>Risk Category</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (p of filteredPatients; track p.id) {
-            <tr>
-              <td class="id-col">{{ p.id }}</td>
-              <td>{{ p.age }}</td>
-              <td>{{ p.gender }}</td>
-              <td>{{ p.diagnosis }}</td>
-              <td>{{ p.prevAdmissions }}</td>
-              <td>{{ p.lastPrediction }}</td>
-              <td>
-                <span class="badge" [class]="'badge-' + p.riskCategory.toLowerCase()">
-                  {{ p.riskCategory }}
-                </span>
-              </td>
-              <td>
-                <a [routerLink]="['/prediction', p.predictionId]" class="btn btn-primary btn-sm">
-                  View
-                </a>
-              </td>
-            </tr>
-          }
-          @if (filteredPatients.length === 0) {
-            <tr>
-              <td colspan="8" class="text-center empty-cell">No matching patient records found.</td>
-            </tr>
-          }
-        </tbody>
-      </table>
+    <div class="dataset-summary">
+      <strong>{{ loading ? 'Loading records...' : errorMessage ? 'Records unavailable' : records.length + ' records shown' }}</strong>
+      <span class="summary-total">{{ totalRecords }} {{ hasAppliedDatasetCriteria ? 'matches in the 50-record sample' : 'records in the sample' }}</span>
+      <span>Maximum 50 records</span>
     </div>
-
-    <!-- Pagination -->
-    <div class="pagination-footer">
-      <span class="pagination-count">Showing 1-{{ filteredPatients.length }} of 100 patients</span>
-      <div class="pagination-buttons">
-        <button class="page-btn" disabled>&lt;</button>
-        <button class="page-btn active">1</button>
-        <button class="page-btn">2</button>
-        <button class="page-btn">3</button>
-        <button class="page-btn">4</button>
-        <button class="page-btn">5</button>
-        <button class="page-btn">&gt;</button>
+    @if (loading) {
+      <div class="status-cell" role="status">Loading dataset records...</div>
+    } @else if (errorMessage) {
+      <div class="status-cell error-state" role="alert"><p>{{ errorMessage }}</p><button type="button" class="btn btn-primary" (click)="loadDatasetRecords()">Retry</button></div>
+    } @else if (records.length === 0) {
+      <div class="status-cell" role="status">No dataset records match these search and filter settings.</div>
+    } @else {
+      <div class="table-responsive">
+        <table class="data-table dataset-table">
+          <thead><tr><th>Dataset row</th><th>Age group</th><th>Gender</th><th>Race</th><th>Admission type</th><th>Discharge disposition</th><th>Stay (days)</th><th>Prior inpatient visits</th><th>Historical outcome</th></tr></thead>
+          <tbody>
+            @for (record of records; track record.row_index) {
+              <tr>
+                <td class="id-col">{{ record.row_index }}</td><td>{{ record.age }}</td><td>{{ record.gender }}</td><td>{{ record.race }}</td>
+                <td>{{ record.admission_type_label }}</td><td>{{ record.discharge_disposition_label }}</td><td>{{ record.time_in_hospital }}</td><td>{{ record.number_inpatient }}</td>
+                <td>{{ record.readmitted === '<30' ? 'Readmitted under 30 days' : record.readmitted === '>30' ? 'Readmitted after 30 days' : record.readmitted === 'NO' ? 'No readmission recorded' : record.readmitted }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
       </div>
-    </div>
+    }
+    <p class="sample-note">Showing only the first 50 dataset rows in this page. The full dataset remains available to the backend for model training and analysis.</p>
   </section>
 </div>

@@ -74,6 +74,10 @@
   background: #20B981;
 }
 
+.status-dot.unavailable {
+  background: #DC2626;
+}
+
 .clear-btn {
   background: rgba(255, 255, 255, 0.15);
   border-color: rgba(255, 255, 255, 0.3);

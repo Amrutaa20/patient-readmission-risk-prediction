@@ -78,19 +78,23 @@
         <h3 class="section-title">Prediction Settings</h3>
         <div class="form-group">
           <label for="defaultModel">Default Scoring Model</label>
-          <select id="defaultModel" class="form-control" [(ngModel)]="defaultModel" name="defaultModel">
-            <option value="XGBoost">XGBoost (Recommended - Champion)</option>
-            <option value="Random Forest">Random Forest</option>
-            <option value="Logistic Regression">Logistic Regression</option>
+          <select id="defaultModel" class="form-control" [(ngModel)]="defaultModel" name="defaultModel" disabled>
+            <option [value]="defaultModel">{{ defaultModel }}</option>
           </select>
+          <p class="text-muted">{{ modelStatus }}</p>
+          @if (modelThreshold !== null) {
+            <p class="text-muted">API decision threshold: {{ (modelThreshold * 100).toFixed(0) }}%.
+              @if (modelSelectionStatus === 'provisional') { Best validated model has not been established. }
+            </p>
+          }
         </div>
 
         <div class="form-group">
           <label>Risk Threshold Scale</label>
           <div class="threshold-chips">
-            <span class="threshold-chip green">Low: &lt; 0.30</span>
-            <span class="threshold-chip yellow">Med: 0.30 - 0.60</span>
-            <span class="threshold-chip red">High: &gt; 0.60</span>
+            <span class="threshold-chip green">Lower score: &lt; 0.30</span>
+            <span class="threshold-chip yellow">Medium score: 0.30 - 0.60</span>
+            <span class="threshold-chip red">Higher score: &gt; 0.60</span>
           </div>
         </div>
 
@@ -115,9 +119,10 @@
         </div>
 
         <div class="clear-data-row">
-          <button type="button" class="btn btn-outline clear-demo-btn">
-            Clear Demo Data
+          <button type="button" class="btn btn-outline clear-demo-btn" (click)="clearSavedPredictions()">
+            Clear Saved Predictions
           </button>
+          @if (clearMessage) { <p role="status">{{ clearMessage }}</p> }
         </div>
       </section>
     </div>
@@ -126,6 +131,9 @@
     <div class="settings-actions-footer">
       @if (isSaved) {
         <span class="save-msg">Changes saved successfully!</span>
+      }
+      @if (saveError) {
+        <span class="text-red" role="alert">{{ saveError }}</span>
       }
       <button type="submit" class="btn btn-primary save-btn">
         Save Changes

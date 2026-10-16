@@ -14,9 +14,10 @@
             </svg>
           </div>
           <div>
-            <h2 class="assistant-title">MediAssist AI</h2>
+            <h2 class="assistant-title">Project Data Assistant</h2>
             <span class="assistant-status">
-              <span class="status-dot"></span> Status: MediAssist AI Ready
+              <span class="status-dot" [class.unavailable]="backendStatus === 'unavailable'"></span>
+              {{ backendStatus === 'checking' ? 'Checking local data service...' : backendStatus === 'available' ? 'Connected to local project data' : 'Backend unavailable' }}
             </span>
           </div>
         </div>
@@ -34,9 +35,13 @@
             }
             <div class="message-bubble" [class.user-bubble]="m.sender === 'user'">
               <p>{{ m.text }}</p>
+              @if (m.source) { <small class="message-time">Source: {{ m.source }}</small> }
               <span class="message-time">{{ m.time }}</span>
             </div>
           </div>
+        }
+        @if (loading) {
+          <div class="message-bubble-row" role="status"><div class="avatar-bot">AI</div><div class="message-bubble"><p>Checking current project data...</p></div></div>
         }
 
         <!-- Suggested Question Chips -->
@@ -61,7 +66,7 @@
           name="userQuestion"
           class="chat-input"
         />
-        <button type="submit" class="btn btn-primary send-btn" [disabled]="!userQuestion.trim()">
+        <button type="submit" class="btn btn-primary send-btn" [disabled]="!userQuestion.trim() || loading" aria-label="Ask assistant">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="22" y1="2" x2="11" y2="13"/>
             <polygon points="22 2 15 22 11 13 2 9 22 2"/>
@@ -70,35 +75,16 @@
       </form>
     </section>
 
-    <!-- Right Prediction Context Card -->
+    <!-- Data sources and scope -->
     <aside class="card context-card">
-      <h3 class="context-title">Current Prediction Context</h3>
-      <div class="context-list">
-        <div class="context-row">
-          <span class="context-k">Prediction ID</span>
-          <span class="context-v font-bold">{{ patientContext.predictionId }}</span>
-        </div>
-        <div class="context-row">
-          <span class="context-k">Patient ID</span>
-          <span class="context-v">{{ patientContext.patientId }}</span>
-        </div>
-        <div class="context-row">
-          <span class="context-k">Probability</span>
-          <span class="context-v font-bold">{{ patientContext.probability.toFixed(2) }}</span>
-        </div>
-        <div class="context-row">
-          <span class="context-k">Risk Category</span>
-          <span class="badge badge-high">{{ patientContext.category }}</span>
-        </div>
-        <div class="context-row">
-          <span class="context-k">Model</span>
-          <span class="context-v">{{ patientContext.model }}</span>
-        </div>
-        <div class="context-row">
-          <span class="context-k">Timestamp</span>
-          <span class="context-v">{{ patientContext.timestamp }}</span>
-        </div>
-      </div>
+      <h3 class="context-title">What I can answer</h3>
+      <ul>
+        <li>Raw and processed encounter counts and historical outcome rates</li>
+        <li>Outcome breakdowns by age, gender, and admission type</li>
+        <li>Deployed model features, threshold, and recorded evaluation metrics</li>
+        <li>Prediction History counts and a saved prediction's probability by its PH- identifier</li>
+      </ul>
+      <p>Dataset rows are encounters, not unique people. Historical outcomes are not current risk estimates. This app uses a local research dataset, not a live hospital feed.</p>
 
       <div class="safety-notice">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -106,7 +92,7 @@
           <line x1="12" y1="8" x2="12" y2="12"/>
           <line x1="12" y1="16" x2="12.01" y2="16"/>
         </svg>
-        <p>MediAssist AI provides interpretative assistance for academic demonstration only. Not for clinical diagnosis.</p>
+        <p>Academic demonstration only. Not for clinical diagnosis or treatment decisions.</p>
       </div>
     </aside>
   </div>

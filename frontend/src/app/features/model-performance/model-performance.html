@@ -2,149 +2,48 @@
   <header class="page-header">
     <div>
       <h1 class="page-title">Model Comparison</h1>
-      <p class="page-subtitle">Evaluate the performance of trained readmission prediction models.</p>
+      <p class="page-subtitle">Recorded metrics for the currently deployed artifact and comparison baselines.</p>
     </div>
   </header>
 
-  <!-- 3 Model Comparison Cards -->
-  <section class="models-grid">
-    @for (m of models; track m.name) {
-      <div class="card model-card" [class.champion-card]="m.isChampion">
-        <div class="model-card-header">
-          <h3 class="model-name">{{ m.name }}</h3>
-          @if (m.isChampion) {
-            <span class="badge badge-low">Champion Model</span>
-          }
-        </div>
-        <div class="metric-row">
-          <span class="metric-k">ROC-AUC</span>
-          <span class="metric-v font-bold">{{ m.rocAuc.toFixed(3) }}</span>
-        </div>
-        <div class="metric-row">
-          <span class="metric-k">F1 Score</span>
-          <span class="metric-v">{{ m.f1Score.toFixed(3) }}</span>
-        </div>
-        <div class="metric-row">
-          <span class="metric-k">Recall</span>
-          <span class="metric-v">{{ m.recall.toFixed(3) }}</span>
-        </div>
-      </div>
-    }
-  </section>
-
-  <!-- Middle 2-Column: ROC Curve & Confusion Matrix -->
-  <div class="middle-grid">
-    <!-- ROC Curve Comparison -->
-    <section class="card chart-card">
-      <div class="chart-header">
-        <h3 class="section-title">ROC Curve Comparison</h3>
-        <div class="roc-legend">
-          <span class="legend-chip"><span class="line-dot xgb"></span> XGBoost</span>
-          <span class="legend-chip"><span class="line-dot rf"></span> Random Forest</span>
-          <span class="legend-chip"><span class="line-dot lr"></span> Logistic Regression</span>
-        </div>
-      </div>
-      <div class="roc-chart-wrap">
-        <svg class="roc-svg" viewBox="0 0 320 220" preserveAspectRatio="none">
-          <!-- Grid -->
-          <line x1="30" y1="20" x2="300" y2="20" stroke="#E8EEF5" stroke-dasharray="2,2"/>
-          <line x1="30" y1="65" x2="300" y2="65" stroke="#E8EEF5" stroke-dasharray="2,2"/>
-          <line x1="30" y1="110" x2="300" y2="110" stroke="#E8EEF5" stroke-dasharray="2,2"/>
-          <line x1="30" y1="155" x2="300" y2="155" stroke="#E8EEF5" stroke-dasharray="2,2"/>
-          <line x1="30" y1="200" x2="300" y2="200" stroke="#CBD5E1"/>
-          <line x1="30" y1="20" x2="30" y2="200" stroke="#CBD5E1"/>
-
-          <!-- Diagonal Chance Line -->
-          <line x1="30" y1="200" x2="300" y2="20" stroke="#94A3B8" stroke-dasharray="4,4"/>
-
-          <!-- Logistic Regression (Orange/Amber) -->
-          <path
-            d="M 30 200 Q 80 80, 160 50 T 300 20"
-            fill="none"
-            stroke="#F5AE24"
-            stroke-width="2"
-          />
-
-          <!-- Random Forest (Teal) -->
-          <path
-            d="M 30 200 Q 60 60, 140 38 T 300 20"
-            fill="none"
-            stroke="#08B5B0"
-            stroke-width="2"
-          />
-
-          <!-- XGBoost (Blue) -->
-          <path
-            d="M 30 200 Q 50 45, 120 30 T 300 20"
-            fill="none"
-            stroke="#0875D1"
-            stroke-width="2.5"
-          />
-        </svg>
-
-        <div class="roc-axes-labels">
-          <span class="y-label">True Positive Rate</span>
-          <span class="x-label">False Positive Rate</span>
-        </div>
-      </div>
+  @if (loading) {
+    <section class="card chart-card" role="status">Loading saved evaluation results…</section>
+  } @else if (errorMessage) {
+    <section class="card chart-card" role="alert">
+      <p>{{ errorMessage }}</p>
+      <button type="button" class="btn btn-primary" (click)="loadComparison()">Retry</button>
+    </section>
+  } @else if (comparison) {
+    <section class="card chart-card evaluation-note">
+      <strong>Provisional comparison — not a final model selection</strong>
+      <p>{{ comparison.selection_note }}</p>
+      <p>Deployed artifact: {{ comparison.deployment_model }} / {{ comparison.model_version }}. Evaluation target: {{ comparison.target_definition }}</p>
+      <p>{{ comparison.evaluation_type }} Split: {{ comparison.evaluation_split.train_rows.toLocaleString() }} training rows and {{ comparison.evaluation_split.test_rows.toLocaleString() }} test rows, {{ comparison.evaluation_split.features }} features. Validation split available: {{ comparison.validation_split_available ? 'yes' : 'no' }}. Source: {{ comparison.source }}.</p>
     </section>
 
-    <!-- Confusion Matrix -->
-    <section class="card chart-card">
-      <div class="chart-header">
-        <h3 class="section-title">Confusion Matrix (Random Forest / XGBoost)</h3>
-      </div>
-      <div class="cm-wrap">
-        <div class="cm-matrix-container">
-          <div class="cm-top-labels">
-            <span>Predicted 0</span>
-            <span>Predicted 1</span>
+    <section class="models-grid">
+      @for (m of comparison.models; track m.name) {
+        <div class="card model-card" [class.champion-card]="m.name === comparison.deployment_model">
+          <div class="model-card-header">
+            <h3 class="model-name">{{ m.name }}</h3>
+            @if (m.name === comparison.deployment_model) {
+              <span class="badge badge-low">Currently Deployed</span>
+            }
           </div>
-
-          <div class="cm-row">
-            <span class="cm-left-label">Actual 0</span>
-            <div class="cm-cell dark-blue">
-              <span class="cm-count">450</span>
-              <span class="cm-type">True Negative</span>
-            </div>
-            <div class="cm-cell light-blue">
-              <span class="cm-count">62</span>
-              <span class="cm-type">False Positive</span>
-            </div>
-          </div>
-
-          <div class="cm-row">
-            <span class="cm-left-label">Actual 1</span>
-            <div class="cm-cell light-blue">
-              <span class="cm-count">78</span>
-              <span class="cm-type">False Negative</span>
-            </div>
-            <div class="cm-cell mid-blue">
-              <span class="cm-count">226</span>
-              <span class="cm-type">True Positive</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </div>
-
-  <!-- Bottom: Feature Importance -->
-  <section class="card feature-imp-card">
-    <h3 class="section-title">Feature Importance (Random Forest / XGBoost)</h3>
-    <div class="feature-bars-list">
-      @for (item of features; track item.feature) {
-        <div class="feature-bar-row">
-          <span class="feature-name">{{ item.feature }}</span>
-          <div class="feature-track">
-            <div
-              class="feature-fill"
-              [style.width.%]="(item.importance / 0.35) * 100"
-            ></div>
-          </div>
-          <span class="feature-num">{{ item.importance.toFixed(2) }}</span>
+          <div class="metric-row"><span class="metric-k">ROC-AUC</span><span class="metric-v font-bold">{{ m.roc_auc.toFixed(3) }}</span></div>
+          <div class="metric-row"><span class="metric-k">PR-AUC</span><span class="metric-v">{{ m.pr_auc.toFixed(3) }}</span></div>
+          <div class="metric-row"><span class="metric-k">F1 Score</span><span class="metric-v">{{ m.f1_score.toFixed(3) }}</span></div>
+          <div class="metric-row"><span class="metric-k">Recall</span><span class="metric-v">{{ m.recall.toFixed(3) }}</span></div>
+          <div class="metric-row"><span class="metric-k">Precision</span><span class="metric-v">{{ m.precision.toFixed(3) }}</span></div>
+          <div class="metric-row"><span class="metric-k">Accuracy</span><span class="metric-v">{{ m.accuracy.toFixed(3) }}</span></div>
+          <div class="metric-row"><span class="metric-k">Decision Threshold</span><span class="metric-v">{{ (m.threshold * 100).toFixed(0) }}%</span></div>
+          <div class="metric-row"><span class="metric-k">TN / FP / FN / TP</span><span class="metric-v">{{ m.true_negative.toLocaleString() }} / {{ m.false_positive.toLocaleString() }} / {{ m.false_negative.toLocaleString() }} / {{ m.true_positive.toLocaleString() }}</span></div>
         </div>
       }
-    </div>
-  </section>
+    </section>
+
+    <section class="card chart-card">
+      <p>ROC and precision-recall curve points and feature-importance values are unavailable in the saved metadata. Confusion-matrix counts are shown in each model card.</p>
+    </section>
+  }
 </div>

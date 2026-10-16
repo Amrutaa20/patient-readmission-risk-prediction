@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { PredictionResponse } from '../../core/services/prediction-api';
+import { PredictionApi } from '../../core/services/prediction-api';
 
 interface Factor {
   name: string;
@@ -15,21 +17,15 @@ interface Factor {
   styleUrl: './prediction-result.css'
 })
 export class PredictionResult implements OnInit {
-  patientId = 'P-1001';
+  patientId = 'Custom encounter';
   probability = 0.72;
   riskCategory: 'High' | 'Medium' | 'Low' = 'High';
-  modelUsed = 'Random Forest';
-  version = 'v1.0.0';
-  timestamp = '2025-04-12 14:30';
+  modelUsed = 'Unavailable';
+  version = 'Metadata unavailable';
+  timestamp = '';
   threshold = 0.40;
 
-  factors: Factor[] = [
-    { name: 'Previous Admissions', weight: 0.28, barClass: 'high' },
-    { name: 'Length of Stay', weight: 0.21, barClass: 'medium' },
-    { name: 'Diagnosis Category', weight: 0.18, barClass: 'medium' },
-    { name: 'Medication Count', weight: 0.12, barClass: 'low' },
-    { name: 'Age', weight: 0.11, barClass: 'low' }
-  ];
+  factors: Factor[] = [];
 
   clinicalConsiderations = [
     'Review previous admission history and frequent readmission causes',
@@ -38,35 +34,57 @@ export class PredictionResult implements OnInit {
     'Review with treating healthcare professional prior to sign-off'
   ];
 
-  isSaved = false;
+  unavailable = false;
+  unavailableMessage = 'This prediction is unavailable. Generate a new prediction or open a record from Prediction History.';
+  prediction: PredictionResponse | null = null;
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private predictionApi: PredictionApi
   ) {}
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.patientId = id.startsWith('P-') ? id : `P-${id}`;
+    if (id && id !== 'custom') {
+      this.patientId = id;
     }
 
-    // Check if state was passed from prediction-form
     const nav = this.router.getCurrentNavigation();
     const state = nav?.extras?.state || history.state;
-    if (state?.prediction) {
-      const pred = state.prediction;
-      this.probability = pred.readmission_probability;
-      this.riskCategory = pred.predicted_class === 1 ? 'High' : 'Low';
-      this.threshold = pred.threshold;
+    const prediction = state?.prediction as PredictionResponse | undefined;
+    if (prediction) {
+      this.setPrediction(prediction, state?.patientId);
+    } else if (id && id !== 'custom') {
+      this.predictionApi.getPredictionHistoryItem(id).subscribe({
+        next: (record) => this.setPrediction({
+          ...record,
+          row_index: null,
+          actual_label: null,
+          history_id: record.id,
+          history_status: 'persisted',
+          note: 'Loaded from backend prediction history.'
+        }),
+        error: () => {
+          this.unavailable = true;
+          this.unavailableMessage = 'This prediction could not be loaded from backend history. Retry from Prediction History or generate a new estimate.';
+        }
+      });
+    } else {
+      this.unavailable = true;
     }
   }
 
-  savePrediction(): void {
-    this.isSaved = true;
-    setTimeout(() => {
-      this.isSaved = false;
-    }, 2500);
+  private setPrediction(prediction: PredictionResponse, patientId?: string): void {
+    this.prediction = prediction;
+    this.patientId = patientId || 'Completed assessment';
+    this.probability = prediction.readmission_probability;
+    this.riskCategory = this.probability < 0.30 ? 'Low' : this.probability <= 0.60 ? 'Medium' : 'High';
+    this.threshold = prediction.threshold;
+    this.modelUsed = prediction.model;
+    this.version = prediction.model_version || 'Version not supplied';
+    this.timestamp = new Date(prediction.prediction_timestamp).toLocaleString();
+    this.unavailable = false;
   }
 
   printReport(): void {

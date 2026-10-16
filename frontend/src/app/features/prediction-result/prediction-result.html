@@ -1,3 +1,9 @@
+@if (unavailable) {
+  <section class="card result-page" role="status">
+    <h1 class="page-title">Prediction details unavailable</h1>
+    <p>{{ unavailableMessage }}</p>
+  </section>
+} @else {
 <div class="result-page">
   <!-- Top Risk Assessment Card -->
   <section class="card assessment-card">
@@ -26,7 +32,7 @@
             />
           </svg>
           <div class="gauge-center">
-            <span class="gauge-percent">{{ (probability * 100).toFixed(0) }}%</span>
+            <span class="gauge-percent">{{ (probability * 100).toFixed(1) }}%</span>
             <span class="gauge-sub">Readmission Probability</span>
           </div>
         </div>
@@ -39,6 +45,9 @@
         </div>
 
         <p class="gauge-note">This is a model-generated estimate, not a confirmed clinical outcome.</p>
+    @if (prediction?.history_status === 'unavailable') {
+      <p class="text-red" role="alert">Prediction completed, but backend history persistence is unavailable. This result is not listed in Prediction History.</p>
+    }
       </div>
 
       <!-- Right: Model Information Panel -->
@@ -48,6 +57,14 @@
           <div class="info-row">
             <span class="info-key">Model Used</span>
             <span class="info-val font-semibold">{{ modelUsed }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">Predicted Class</span>
+            <span class="info-val">{{ prediction?.predicted_class === 1 ? 'Readmission within 30 days (class 1)' : 'No readmission within 30 days (class 0)' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">Historical Outcome</span>
+            <span class="info-val">{{ prediction?.actual_label === null || prediction?.actual_label === undefined ? 'Not available for a new encounter' : (prediction.actual_label === 1 ? 'Readmitted within 30 days' : 'Not readmitted within 30 days') }}</span>
           </div>
           <div class="info-row">
             <span class="info-key">Version</span>
@@ -62,12 +79,16 @@
             <span class="info-val font-semibold">{{ (threshold * 100).toFixed(0) }}%</span>
           </div>
           <div class="info-row scale-row">
-            <span class="info-key">Risk Scale</span>
+            <span class="info-key">Risk Category</span>
             <span class="info-val scale-val">
-              <span class="text-green">Low: &lt;30%</span> ·
-              <span class="text-yellow">Medium: 30-60%</span> ·
+              <span class="text-green">Low: &lt;30%</span> /
+              <span class="text-yellow">Medium: 30-60%</span> /
               <span class="text-red">High: &gt;60%</span>
             </span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">Predicted Class Rule</span>
+            <span class="info-val">Class 0 below {{ (threshold * 100).toFixed(0) }}%; class 1 at or above {{ (threshold * 100).toFixed(0) }}%</span>
           </div>
         </div>
       </div>
@@ -96,6 +117,9 @@
               ></div>
             </div>
           </div>
+        }
+        @if (factors.length === 0) {
+          <p>The prediction API does not return feature-level explanations.</p>
         }
       </div>
     </section>
@@ -126,13 +150,7 @@
       <a routerLink="/patients" class="btn btn-primary">
         View Patient Details
       </a>
-      <button type="button" class="btn btn-outline" (click)="savePrediction()">
-        @if (isSaved) {
-          <span>Saved &check;</span>
-        } @else {
-          <span>Save Prediction</span>
-        }
-      </button>
+      <a routerLink="/prediction-history" class="btn btn-outline">View Prediction History</a>
       <button type="button" class="btn btn-outline" (click)="printReport()">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="6 9 6 2 18 2 18 9"/>
@@ -155,3 +173,4 @@
     </a>
   </footer>
 </div>
+}

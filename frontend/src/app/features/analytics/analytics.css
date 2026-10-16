@@ -8,6 +8,11 @@
   gap: 20px;
 }
 
+.analytics-note, .analytics-source { color: var(--text-muted); font-size: 13px; line-height: 1.55; }
+.analytics-note { padding: 16px 20px; }
+.analytics-note p { margin-top: 6px; }
+.analytics-source { margin: 0; }
+
 .page-title {
   font-size: 24px;
   font-weight: 700;
@@ -161,7 +166,15 @@
 .bar-label {
   font-size: 11px;
   color: var(--text-muted);
-  white-space: nowrap;
+  white-space: normal;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.bar-col small {
+  color: var(--text-muted);
+  font-size: 9px;
+  text-align: center;
 }
 
 /* Line Chart */

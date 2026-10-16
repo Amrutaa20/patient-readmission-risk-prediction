@@ -8,6 +8,9 @@
   gap: 20px;
 }
 
+.history-warning { padding: 14px 18px; color: var(--text-main); font-size: 13px; }
+.model-version { display: block; color: var(--text-muted); font-size: 11px; margin-top: 3px; }
+
 .page-title {
   font-size: 24px;
   font-weight: 700;
@@ -24,7 +27,7 @@
 /* 4 Summary Stat Cards */
 .summary-cards-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
 }
 

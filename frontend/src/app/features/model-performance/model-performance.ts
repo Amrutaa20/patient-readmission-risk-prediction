@@ -1,17 +1,5 @@
-import { Component } from '@angular/core';
-
-interface ModelMetric {
-  name: string;
-  isChampion?: boolean;
-  rocAuc: number;
-  f1Score: number;
-  recall: number;
-}
-
-interface FeatureImp {
-  feature: string;
-  importance: number;
-}
+import { Component, OnInit } from '@angular/core';
+import { PredictionApi, ModelComparisonResponse } from '../../core/services/prediction-api';
 
 @Component({
   selector: 'app-model-performance',
@@ -20,18 +8,29 @@ interface FeatureImp {
   templateUrl: './model-performance.html',
   styleUrl: './model-performance.css'
 })
-export class ModelPerformance {
-  models: ModelMetric[] = [
-    { name: 'Logistic Regression', rocAuc: 0.782, f1Score: 0.641, recall: 0.687 },
-    { name: 'Random Forest', rocAuc: 0.841, f1Score: 0.728, recall: 0.781 },
-    { name: 'XGBoost', isChampion: true, rocAuc: 0.856, f1Score: 0.742, recall: 0.708 }
-  ];
+export class ModelPerformance implements OnInit {
+  comparison?: ModelComparisonResponse;
+  loading = false;
+  errorMessage = '';
 
-  features: FeatureImp[] = [
-    { feature: 'Previous Admissions', importance: 0.31 },
-    { feature: 'Length of Stay', importance: 0.24 },
-    { feature: 'Diagnosis Category', importance: 0.18 },
-    { feature: 'Medication Count', importance: 0.12 },
-    { feature: 'Age', importance: 0.08 }
-  ];
+  constructor(private predictionApi: PredictionApi) {}
+
+  ngOnInit(): void {
+    this.loadComparison();
+  }
+
+  loadComparison(): void {
+    this.loading = true;
+    this.errorMessage = '';
+    this.predictionApi.getModelComparison().subscribe({
+      next: (comparison) => {
+        this.comparison = comparison;
+        this.loading = false;
+      },
+      error: () => {
+        this.errorMessage = 'Model evaluation metadata is unavailable.';
+        this.loading = false;
+      }
+    });
+  }
 }

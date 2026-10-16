@@ -1,10 +1,19 @@
 {
     "champion_model": "XGBoost",
+    "model_name": "XGBoost",
+    "model_version": "xgboost_model.pkl",
     "model_file": "xgboost_model.pkl",
     "operating_threshold": 0.4,
-    "roc_auc": 0.6875,
-    "pr_auc": 0.2341,
-    "recall": 0.8133,
-    "precision": 0.1506,
-    "f1_score": 0.2541
+    "roc_auc": 0.687475,
+    "pr_auc": 0.234115,
+    "recall": 0.813298,
+    "precision": 0.150554,
+    "f1_score": 0.254075,
+    "accuracy": 0.467181,
+    "true_negative": 7662,
+    "false_positive": 10421,
+    "false_negative": 424,
+    "true_positive": 1847,
+    "selection_status": "provisional",
+    "selection_note": "XGBoost is the currently deployed model. The notebooks tune thresholds using test results, so these holdout metrics do not establish a best-validated model. CatBoost also used the test set for early stopping; a separate validation set and fresh final test set are needed for a fair selection."
 }

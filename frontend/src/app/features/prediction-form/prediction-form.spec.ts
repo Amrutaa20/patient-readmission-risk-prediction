@@ -18,4 +18,10 @@ describe('PredictionForm', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('blocks submission when required model inputs are missing', () => {
+    component.predict();
+    expect(component.result).toBeNull();
+    expect(component.errorMessage).toContain('Complete all encounter fields');
+  });
 });

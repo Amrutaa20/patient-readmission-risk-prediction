@@ -47,6 +47,29 @@
   --shadow-md: 0 4px 12px rgba(15, 34, 58, 0.06);
 }
 
+.dark-theme {
+  --bg-page: #0b1724;
+  --bg-card: #122235;
+  --border: #263d55;
+  --border-subtle: #263d55;
+  --text-main: #e5edf5;
+  --text-muted: #a8bacd;
+  --text-light: #8ca2b8;
+}
+
+.dark-theme .btn-outline {
+  background: #122235;
+  color: var(--text-main);
+}
+
+.dark-theme input,
+.dark-theme select,
+.dark-theme textarea {
+  background-color: #0f2032;
+  color: var(--text-main);
+  border-color: var(--border);
+}
+
 * {
   box-sizing: border-box;
   margin: 0;

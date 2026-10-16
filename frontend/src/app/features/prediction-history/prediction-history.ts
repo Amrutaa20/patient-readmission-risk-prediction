@@ -1,53 +1,111 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
-
-interface HistoryItem {
-  id: string;
-  patientId: string;
-  date: string;
-  model: string;
-  probability: number;
-  category: 'High' | 'Medium' | 'Low';
-}
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { PredictionApi, PredictionHistoryRecord } from '../../core/services/prediction-api';
+import { PredictionHistoryStore } from '../../core/services/prediction-history-store';
 
 @Component({
   selector: 'app-prediction-history',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [DatePipe, FormsModule, RouterLink],
   templateUrl: './prediction-history.html',
   styleUrl: './prediction-history.css'
 })
-export class PredictionHistory {
+export class PredictionHistory implements OnInit {
   dateRange = 'Last 30 days';
   riskCategory = 'All';
   modelFilter = 'All';
+  availableModels: string[] = [];
   searchQuery = '';
+  items: PredictionHistoryRecord[] = [];
+  total = 0;
+  currentPage = 1;
+  readonly pageSize = 25;
+  totalPages = 0;
+  summary = { total: 0, higher_risk: 0, lower_risk: 0 };
+  loading = false;
+  errorMessage = '';
+  migrationWarning = '';
+  private migrationAttempted = false;
 
-  summaryCards = [
-    { label: 'Total Predictions', count: 128, color: 'blue', icon: 'total' },
-    { label: 'High Risk', count: 32, color: 'red', icon: 'high' },
-    { label: 'Medium Risk', count: 41, color: 'yellow', icon: 'medium' },
-    { label: 'Low Risk', count: 55, color: 'green', icon: 'low' }
-  ];
+  constructor(
+    private predictionApi: PredictionApi,
+    private historyStore: PredictionHistoryStore,
+    private route: ActivatedRoute
+  ) {}
 
-  allHistory: HistoryItem[] = [
-    { id: 'PR-001', patientId: 'P-1001', date: '2025-04-12', model: 'RF', probability: 0.72, category: 'High' },
-    { id: 'PR-002', patientId: 'P-1002', date: '2025-04-10', model: 'RF', probability: 0.24, category: 'Low' },
-    { id: 'PR-003', patientId: 'P-1003', date: '2025-04-08', model: 'XGBoost', probability: 0.48, category: 'Medium' },
-    { id: 'PR-004', patientId: 'P-1004', date: '2025-04-06', model: 'RF', probability: 0.63, category: 'High' },
-    { id: 'PR-005', patientId: 'P-1005', date: '2025-04-05', model: 'LR', probability: 0.21, category: 'Low' },
-    { id: 'PR-006', patientId: 'P-1006', date: '2025-04-04', model: 'XGBoost', probability: 0.35, category: 'Medium' }
-  ];
+  ngOnInit(): void {
+    this.route.queryParamMap.subscribe((params) => {
+      this.searchQuery = params.get('q') || '';
+      this.ensureLegacyMigration();
+    });
+  }
 
-  filteredHistory = [...this.allHistory];
+  private ensureLegacyMigration(): void {
+    if (this.migrationAttempted) {
+      this.loadHistory();
+      return;
+    }
+    this.migrationAttempted = true;
+    this.historyStore.migrateLegacyHistory().subscribe({
+      next: () => {
+        this.migrationWarning = this.historyStore.lastReadError
+          ? 'Legacy predictions were migrated, but old browser copies could not be removed.'
+          : '';
+        this.loadHistory();
+      },
+      error: () => {
+        this.migrationWarning = 'Older browser predictions could not be migrated. They remain in this browser; new predictions are stored by the backend.';
+        this.loadHistory();
+      }
+    });
+  }
+
+  retry(): void {
+    this.errorMessage = '';
+    this.migrationAttempted = false;
+    this.ensureLegacyMigration();
+  }
 
   applyFilters(): void {
-    this.filteredHistory = this.allHistory.filter((item) => {
-      const matchPatient = !this.searchQuery || item.patientId.toLowerCase().includes(this.searchQuery.toLowerCase());
-      const matchRisk = this.riskCategory === 'All' || item.category === this.riskCategory;
-      const matchModel = this.modelFilter === 'All' || item.model === this.modelFilter;
-      return matchPatient && matchRisk && matchModel;
+    this.currentPage = 1;
+    this.loadHistory();
+  }
+
+  changePage(page: number): void {
+    if (page >= 1 && page <= this.totalPages && page !== this.currentPage) {
+      this.currentPage = page;
+      this.loadHistory();
+    }
+  }
+
+  private loadHistory(): void {
+    this.loading = true;
+    this.errorMessage = '';
+    const days = this.dateRange === 'Last 7 days' ? 7 : this.dateRange === 'Last 30 days' ? 30 : this.dateRange === 'Last 90 days' ? 90 : undefined;
+    this.predictionApi.getPredictionHistory({
+      page: this.currentPage,
+      pageSize: this.pageSize,
+      search: this.searchQuery.trim() || undefined,
+      risk: this.riskCategory === 'All' ? undefined : this.riskCategory === 'High' ? 'higher' : 'lower',
+      model: this.modelFilter === 'All' ? undefined : this.modelFilter,
+      days
+    }).subscribe({
+      next: (response) => {
+        this.items = response.items;
+        this.total = response.total;
+        this.currentPage = response.page;
+        this.totalPages = response.total_pages;
+        this.summary = response.summary;
+        this.availableModels = response.available_models;
+        this.loading = false;
+      },
+      error: (error) => {
+        this.items = [];
+        this.errorMessage = error?.error?.detail || 'Prediction history could not be loaded.';
+        this.loading = false;
+      }
     });
   }
 }

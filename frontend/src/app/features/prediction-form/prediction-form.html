@@ -2,223 +2,116 @@
   <header class="page-header">
     <div>
       <h1 class="page-title">New Risk Assessment</h1>
-      <p class="page-subtitle">Enter the available patient and encounter information to estimate the probability of readmission within 30 days.</p>
+      <p class="page-subtitle">Estimate 30-day readmission risk from a complete encounter using the existing saved model.</p>
     </div>
   </header>
 
   <!-- Assessment Form Card -->
   <section class="card form-card">
+    <p class="disclaimer-note" role="note">Enter the encounter fields used by the existing training preprocessing. Every model input is required; unprovided values are never defaulted. Current model: <strong>{{ modelName }}</strong>@if (modelThreshold !== null) {, operating threshold: <strong>{{ (modelThreshold * 100).toFixed(0) }}%</strong>}. The saved 111-feature schema remains in use.</p>
     <form (ngSubmit)="predict()">
-      <!-- 1. Patient Information -->
       <div class="form-section">
-        <h3 class="section-title">1. Patient Information</h3>
+        <h3 class="section-title">Patient and admission</h3>
         <div class="form-grid-3">
           <div class="form-group">
-            <label for="patientId">Patient ID <span class="text-muted">(optional)</span></label>
-            <input
-              id="patientId"
-              type="text"
-              class="form-control"
-              placeholder="e.g. P-1001"
-              [(ngModel)]="patientId"
-              name="patientId"
-            />
+            <label for="patientId">Patient record label <span class="text-muted">(optional, not sent to model)</span></label>
+            <input id="patientId" name="patientId" class="form-control" type="text" [(ngModel)]="patientId" />
           </div>
-
-          <div class="form-group">
-            <label for="ageRange">Age</label>
-            <select id="ageRange" class="form-control" [(ngModel)]="ageRange" name="ageRange">
-              <option value="">Select age range</option>
-              <option value="[18-30)">[18-30)</option>
-              <option value="[30-40)">[30-40)</option>
-              <option value="[40-50)">[40-50)</option>
-              <option value="[50-60)">[50-60)</option>
-              <option value="[60-70)">[60-70)</option>
-              <option value="[70-80)">[70-80)</option>
-              <option value="[80-90)">[80-90)</option>
-              <option value="[90-100)">[90-100)</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="gender">Gender</label>
-            <select id="gender" class="form-control" [(ngModel)]="gender" name="gender">
-              <option value="">Select gender</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <!-- 2. Diagnosis Information -->
-      <div class="form-section">
-        <h3 class="section-title">2. Diagnosis Information</h3>
-        <div class="form-grid-3">
-          <div class="form-group">
-            <label for="primaryDiagnosis">Primary Diagnosis</label>
-            <select id="primaryDiagnosis" class="form-control" [(ngModel)]="primaryDiagnosis" name="primaryDiagnosis">
-              <option value="">Select diagnosis</option>
-              <option value="Diabetes">Diabetes</option>
-              <option value="Circulatory">Circulatory (Heart/Vascular)</option>
-              <option value="Respiratory">Respiratory (COPD/Pneumonia)</option>
-              <option value="Digestive">Digestive</option>
-              <option value="Genitourinary">Genitourinary</option>
-              <option value="Musculoskeletal">Musculoskeletal</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="secondaryDiagnosis">Secondary Diagnosis</label>
-            <select id="secondaryDiagnosis" class="form-control" [(ngModel)]="secondaryDiagnosis" name="secondaryDiagnosis">
-              <option value="">Select diagnosis</option>
-              <option value="Hypertension">Hypertension</option>
-              <option value="Diabetes">Diabetes</option>
-              <option value="Circulatory">Circulatory</option>
-              <option value="Respiratory">Respiratory</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="numDiagnoses">Number of Diagnoses</label>
-            <select id="numDiagnoses" class="form-control" [(ngModel)]="numDiagnoses" name="numDiagnoses">
-              @for (n of [1,2,3,4,5,6,7,8,9,10,12,14,16]; track n) {
-                <option [value]="n">{{ n }}</option>
-              }
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <!-- 3. Treatment and Medication History -->
-      <div class="form-section">
-        <h3 class="section-title">3. Treatment and Medication History</h3>
-        <div class="form-grid-3">
-          <div class="form-group">
-            <label for="medication">Medication</label>
-            <select id="medication" class="form-control" [(ngModel)]="medication" name="medication">
-              <option value="">Select medication</option>
-              <option value="Insulin">Insulin</option>
-              <option value="Metformin">Metformin</option>
-              <option value="Glipizide">Glipizide</option>
-              <option value="Glyburide">Glyburide</option>
-              <option value="Multiple">Multiple Agents</option>
-              <option value="No Meds">No Diabetes Meds</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="numMedications">Number of Medications</label>
-            <input
-              id="numMedications"
-              type="number"
-              min="1"
-              max="81"
-              class="form-control"
-              placeholder="e.g. 18"
-              [(ngModel)]="numMedications"
-              name="numMedications"
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="medicationChanges">Medication Changes</label>
-            <select id="medicationChanges" class="form-control" [(ngModel)]="medicationChanges" name="medicationChanges">
-              <option value="Yes">Yes (Dosage / Drug Change)</option>
-              <option value="No">No (Maintained)</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <!-- 4. Previous Hospital Utilization -->
-      <div class="form-section">
-        <h3 class="section-title">4. Previous Hospital Utilization</h3>
-        <div class="form-grid-3">
-          <div class="form-group">
-            <label for="previousAdmissions">Previous Admissions</label>
-            <input
-              id="previousAdmissions"
-              type="number"
-              min="0"
-              max="15"
-              class="form-control"
-              [(ngModel)]="previousAdmissions"
-              name="previousAdmissions"
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="emergencyVisits">Emergency Visits</label>
-            <input
-              id="emergencyVisits"
-              type="number"
-              min="0"
-              max="15"
-              class="form-control"
-              [(ngModel)]="emergencyVisits"
-              name="emergencyVisits"
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="lengthOfStay">Length of Stay (days)</label>
-            <select id="lengthOfStay" class="form-control" [(ngModel)]="lengthOfStay" name="lengthOfStay">
-              @for (d of [1,2,3,4,5,6,7,8,9,10,12,14]; track d) {
-                <option [value]="d">{{ d }} day{{ d > 1 ? 's' : '' }}</option>
-              }
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <!-- Optional Dataset Record Index selector -->
-      <div class="dataset-sample-box">
-        <label for="rowIndex">Dataset Sample Record (Index: 0 - 101765)</label>
-        <div class="sample-row-input">
-          <input
-            id="rowIndex"
-            type="number"
-            min="0"
-            max="101765"
-            step="1"
-            class="form-control small-input"
-            [(ngModel)]="rowIndex"
-            name="rowIndex"
-          />
-          <span class="text-muted sample-hint">Points to a verified encounter from the 101,766 processed dataset for live model scoring.</span>
-        </div>
-      </div>
-
-      @if (errorMessage) {
-        <div class="alert alert-danger" role="alert">
-          {{ errorMessage }}
-        </div>
-      }
-
-      <!-- Form Actions Footer -->
-      <div class="form-actions-footer">
-        <div class="left-actions">
-          <button type="button" class="btn btn-outline" (click)="clearForm()">
-            Clear Form
-          </button>
-          <button type="button" class="btn btn-outline" (click)="loadSamplePatient()">
-            Load Sample Patient
-          </button>
-        </div>
-        <button type="submit" class="btn btn-primary predict-btn" [disabled]="loading">
-          @if (loading) {
-            <span class="spinner"></span>
-            <span>Analyzing...</span>
-          } @else {
-            <span>Predict Risk</span>
+          @for (field of demographics; track field.key) {
+            <div class="form-group">
+              <label [for]="field.key">{{ field.label }}</label>
+              <select class="form-control" [id]="field.key" [(ngModel)]="input[field.key]" [name]="field.key" required>
+                <option value="">Select {{ field.label.toLowerCase() }}</option>
+                @for (option of field.options; track option) { <option [value]="option">{{ option }}</option> }
+              </select>
+            </div>
           }
+          @for (field of numericFields.slice(0, 3); track field.key) {
+            <div class="form-group">
+              <label [for]="field.key">{{ field.label }}</label>
+              @if (field.options) {
+                <select class="form-control" [id]="field.key" [name]="field.key" [(ngModel)]="input[field.key]" required>
+                  <option [ngValue]="''">Select ID</option>
+                  @for (option of field.options; track option) { <option [ngValue]="option">{{ option }}</option> }
+                </select>
+              } @else {
+                <input class="form-control" type="number" [id]="field.key" [name]="field.key" [(ngModel)]="input[field.key]" [min]="field.min" [max]="field.max" step="1" required />
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3 class="section-title">Utilization and diagnoses</h3>
+        <div class="form-grid-3">
+          @for (field of numericFields.slice(3); track field.key) {
+            <div class="form-group">
+              <label [for]="field.key">{{ field.label }}</label>
+              <input class="form-control" type="number" [id]="field.key" [name]="field.key" [(ngModel)]="input[field.key]" [min]="field.min" [max]="field.max" step="1" required />
+            </div>
+          }
+          @for (field of diagnoses; track field.key) {
+            <div class="form-group">
+              <label [for]="field.key">{{ field.label }}</label>
+              <input class="form-control" type="text" [id]="field.key" [name]="field.key" [(ngModel)]="input[field.key]" placeholder="Enter ICD-9 diagnosis code" maxlength="8" required />
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3 class="section-title">Lab results and medication status</h3>
+        <div class="form-grid-3">
+          @for (field of labFields; track field.key) {
+            <div class="form-group">
+              <label [for]="field.key">{{ field.label }}</label>
+              <select class="form-control" [id]="field.key" [name]="field.key" [(ngModel)]="input[field.key]" required>
+                <option value="">Select {{ field.label.toLowerCase() }}</option>
+                @for (option of field.options; track option) { <option [value]="option">{{ option }}</option> }
+              </select>
+            </div>
+          }
+          @for (medication of medicationNames; track medication) {
+            <div class="form-group">
+              <label [for]="'med-' + medication">{{ medication }}</label>
+              <select class="form-control" [id]="'med-' + medication" [name]="medication" [(ngModel)]="input[medication]" required>
+                <option value="">Select status</option>
+                @for (option of (medicationOptions[medication] || ['Down', 'No', 'Steady', 'Up']); track option) { <option [value]="option">{{ option }}</option> }
+              </select>
+            </div>
+          }
+          <div class="form-group">
+            <label for="change">Medication changed</label>
+            <select id="change" name="change" class="form-control" [(ngModel)]="input['change']" required>
+              <option value="">Select</option><option value="Ch">Yes (Ch)</option><option value="No">No</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="diabetesMed">Diabetes medication prescribed</label>
+            <select id="diabetesMed" name="diabetesMed" class="form-control" [(ngModel)]="input['diabetesMed']" required>
+              <option value="">Select</option><option value="Yes">Yes</option><option value="No">No</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      @if (errorMessage) { <div class="alert alert-danger" role="alert">{{ errorMessage }}</div> }
+      <div class="form-actions-footer">
+        <button type="button" class="btn btn-outline" (click)="clearForm()">Clear Form</button>
+        <button type="submit" class="btn btn-primary predict-btn" [disabled]="loading">
+          @if (loading) { <span class="spinner"></span><span>Analyzing...</span> } @else { <span>Predict Risk</span> }
         </button>
       </div>
     </form>
+    <details class="dataset-sample-box">
+      <summary>Score a saved dataset row instead</summary>
+      <form class="sample-row-input" (ngSubmit)="predictSample()">
+        <label for="sampleRowIndex">Dataset row index (0–101765)</label>
+        <input id="sampleRowIndex" name="sampleRowIndex" type="number" min="0" max="101765" step="1" required class="form-control small-input" [(ngModel)]="sampleRowIndex" />
+        <button type="submit" class="btn btn-outline" [disabled]="loading">Score dataset row</button>
+      </form>
+    </details>
   </section>
 
   <!-- Prediction Result Card (Rendered below on submission) -->
@@ -237,15 +130,15 @@
       <div class="result-metrics-row">
         <div class="risk-circle-box">
           <div class="risk-circle" [class.high]="p.predicted_class === 1" [class.low]="p.predicted_class === 0">
-            <span class="risk-percent">{{ (p.readmission_probability * 100).toFixed(0) }}%</span>
+            <span class="risk-percent">{{ (p.readmission_probability * 100).toFixed(1) }}%</span>
             <span class="risk-label">Probability</span>
           </div>
         </div>
 
         <div class="result-details-grid">
           <div class="detail-cell">
-            <span class="detail-label">Dataset Row</span>
-            <span class="detail-val">#{{ p.row_index }}</span>
+            <span class="detail-label">Input source</span>
+            <span class="detail-val">{{ p.row_index === null ? 'Custom encounter' : 'Dataset row #' + p.row_index }}</span>
           </div>
           <div class="detail-cell">
             <span class="detail-label">Predicted Class</span>
@@ -256,8 +149,8 @@
             <span class="detail-val">{{ (p.threshold * 100).toFixed(0) }}%</span>
           </div>
           <div class="detail-cell">
-            <span class="detail-label">Actual Encounter Label</span>
-            <span class="detail-val">{{ p.actual_label === 1 ? 'Readmitted' : 'Not Readmitted' }}</span>
+            <span class="detail-label">Actual encounter label</span>
+            <span class="detail-val">{{ p.actual_label === null ? 'Unavailable for a new encounter' : (p.actual_label === 1 ? 'Readmitted' : 'Not readmitted') + ' (dataset outcome)' }}</span>
           </div>
         </div>
       </div>

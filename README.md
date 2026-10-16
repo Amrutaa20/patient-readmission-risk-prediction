@@ -48,91 +48,44 @@ Under the **Hospital Readmissions Reduction Program (HRRP)**, unplanned 30-day r
 
 ```
 patient-readmission-risk-prediction/
+├── backend/                             # FastAPI prediction API
+│   ├── app.py                           # API endpoints and model inference
+│   └── requirements.txt                 # Backend Python dependencies
+├── frontend/                            # Angular web application
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── core/services/           # API client
+│   │   │   ├── features/                # Dashboard, predictions, analytics, etc.
+│   │   │   └── layout/                  # Shared navigation and page layout
+│   │   ├── index.html
+│   │   └── main.ts                      # Angular entry point
+│   ├── package.json                     # Frontend scripts and dependencies
+│   └── README.md                        # Angular CLI notes
 ├── data/
-│   ├── raw/
-│   │   ├── diabetic_data.csv            # Raw EHR dataset (101,766 x 50)
-│   │   └── IDS_mapping.csv              # Admission/discharge metadata mappings
-│   └── processed/
-│       └── readmission_cleaned.csv      # Cleaned, one-hot encoded dataset (101,766 x 112)
-│
-├── notebooks/
-│   ├── 01_data_understanding.ipynb      # EDA, missing value audit, clinical distributions
-│   ├── 02_data_preprocessing.ipynb      # Cleaning, ICD-9 categorization, dummy encoding
-│   ├── 03_logistic_regression.ipynb     # Linear baseline with scaling, odds ratios & threshold tuning
-│   ├── 04_random_forest.ipynb           # Bagging ensemble (300 trees) with balanced class weights
-│   ├── 05_xgboost.ipynb                 # Gradient boosted trees with scale_pos_weight
-│   ├── 06_catboost.ipynb                # Symmetric oblivious decision trees with native balancing
-│   └── 07_model_comparison.ipynb        # Cross-model benchmark, diagnostic curves & champion selection
-│
-├── models/                              # Serialized model weights, scalers, and threshold configs
-│   ├── scaler.pkl
-│   ├── logistic_regression_model.pkl
-│   ├── random_forest_model.pkl
-│   ├── xgboost_model.pkl
-│   ├── catboost_model.pkl
-│   └── champion_model_metadata.json
-│
-├── app/
-│   └── app.py                           # Interactive clinical risk assessment web application
-│
-├── requirements.txt                     # Python package dependencies
-├── .gitattributes                       # Git LFS tracking for model weights
-├── .gitignore                           # Git ignore definitions
-└── README.md                            # Project documentation
+│   ├── raw/                             # Original dataset and mapping files
+│   └── processed/                       # Cleaned model input dataset
+├── models/                              # Trained models and threshold metadata
+├── notebooks/                           # Exploration, preprocessing, and model training
+├── reports/                             # Generated evaluation reports and figures
+├── inspect_dataset.py                   # Dataset inspection helper
+├── inspect_model.py                     # Model inspection helper
+├── requirements.txt                     # Notebook and model development dependencies
+└── README.md
 ```
 
 ---
 
-## 🔬 Modeling Pipeline & Methodology
+## Modeling Pipeline & Evaluation Audit
 
-```
-Raw EHR Data (101,766 rows)
-       │
-       ▼
-01. Exploratory Data Analysis (EDA)
-       │
-       ▼
-02. Feature Engineering & Preprocessing
-    ├── Target encoding (<30 vs. NO/>30)
-    ├── Clinical ICD-9 diagnosis clustering
-    ├── Removal of leaky identifiers (encounter_id, patient_nbr)
-    └── One-hot encoding (111 predictor columns)
-       │
-       ▼
-Train / Test Stratified Split (80/20)
-       │
-       ├───► 03. Logistic Regression (L2 penalty, StandardScaler, Odds Ratios)
-       ├───► 04. Random Forest (300 trees, class_weight='balanced')
-       ├───► 05. XGBoost (scale_pos_weight=7.96, early stopping)
-       └───► 06. CatBoost (Oblivious trees, auto_class_weights='Balanced')
-       │
-       ▼
-07. Model Comparison & Threshold Optimization
-       │
-       ▼
-Champion Model Selection (CatBoost) ──► Deployment (Streamlit App)
-```
+The checked-in preprocessing notebook reads 101,766 raw encounters (50 columns). It creates `readmitted_30_days` as `1` only for raw `readmitted == "<30"`; `NO` and `>30` become `0` (90,409 negatives / 11,357 positives). It removes six columns (`encounter_id`, `patient_nbr`, `weight`, `medical_specialty`, `payer_code`, and raw `readmitted`) and adds the target, producing 45 columns without dropping rows. It fills missing race/diagnosis values as `Unknown`, fills missing glucose and A1C results as `None`, groups diagnosis codes, and adds `total_previous_visits` from the three prior-visit counts. The cleaned frame has 46 columns and zero missing values. One-hot encoding with `drop_first=True` produces 101,766 rows x 112 columns: 111 model inputs and the target. No row filtering occurs in the executed notebook.
 
----
+The saved XGBoost and CatBoost notebooks use the same stratified 80/20 split (`random_state=42`): 81,412 training encounters and 20,354 test encounters (2,271 positive, 18,083 negative), with 111 inputs. The saved models load and accept that feature schema. The notebooks do not create a distinct validation split. CatBoost uses the test set as its early-stopping evaluation set, and the notebooks tune operating thresholds against test results. Therefore these are historical comparisons, not unbiased final estimates. Do not describe the selection as a validated champion until a validation set is used for selection and a fresh held-out test set is reserved for final evaluation.
 
-## 🏆 Benchmark Evaluation Results
+The backend currently deploys the existing XGBoost artifact and uses its saved 0.40 threshold. At the shared 0.40 cutoff on the repository's recorded test split, XGBoost measured ROC-AUC 0.687475, PR-AUC 0.234115, precision 0.150554, recall 0.813298, F1 0.254075, and accuracy 0.467181. CatBoost measured ROC-AUC 0.687060, PR-AUC 0.233427, precision 0.149422, recall 0.819022, F1 0.252735, and accuracy 0.459615. XGBoost is the current deployment because the existing saved comparison metadata selects it on ROC-AUC; it also edges CatBoost in ROC-AUC, PR-AUC, precision, and F1 at the shared cutoff. The difference is small and the evaluation limitations above mean neither result establishes a validated clinical champion. The exact recorded values and confusion counts are served from `models/model_comparison_metadata.json` to the Model Comparison page.
 
-All four models were evaluated on the **identical holdout test set** ($N = 20,354$ patients, 11.16% prevalence):
+Existing feature-importance outputs support prior inpatient visits, discharge disposition, total previous visits, hospital stay, medication and lab counts, diagnosis counts/categories, and admission type/source as useful signals. The preprocessing/model pipeline does not use SHAP or a separate feature-selection step to reduce inputs: the deployed artifacts require all 111 encoded columns, so the app preserves that complete schema rather than dropping low-ranked features without retraining and validation.
 
-| Model Architecture      | Notebook |  ROC-AUC  |  PR-AUC   | Tuned Cutoff | Recall (Sensitivity) | Precision | F1 Score  | Inference Speed |
-| :---------------------- | :------- | :-------: | :-------: | :----------: | :------------------: | :-------: | :-------: | :-------------: |
-| **CatBoost** 🥇         | `06`     | **0.690** | **0.228** |   **0.40**   |      **60.5%**       | **18.9%** | **0.285** |      ~2 ms      |
-| **XGBoost** 🥈          | `05`     |   0.688   |   0.224   |     0.40     |        59.5%         |   18.5%   |   0.282   |      ~2 ms      |
-| **Logistic Regression** | `03`     |   0.660   |   0.201   |     0.45     |        59.2%         |   18.0%   |   0.273   |   **< 1 ms**    |
-| **Random Forest**       | `04`     |   0.660   |   0.198   |     0.25     |        53.9%         |   18.2%   |   0.272   |     ~15 ms      |
-
-### Key Findings:
-
-1. **Gradient Boosting Outperforms**: CatBoost and XGBoost outperform Random Forest and Logistic Regression by **~3 AUC points**, capturing non-linear clinical feature interactions.
-2. **Threshold Tuning is Essential**: At the default $0.50$ threshold, Random Forest achieved an unviable **4.98% recall** due to severe class imbalance. Tuning cutoffs to $0.25$–$0.40$ increased readmission detection to **~60%**.
-3. **The Clinical Screening Ratio**: Achieving ~60% recall with ~19% precision means that **1 out of every 5 patients flagged as high risk will be readmitted**. In hospital operations, this provides a cost-effective triage ratio for proactive care management.
-
----
+The 111 model inputs are the existing encoded pipeline schema; the app does not arbitrarily remove columns from the saved models. Identifiers and target-derived columns are excluded. `total_previous_visits` is computed only from the prior outpatient, emergency, and inpatient visit counts. The clinical prediction form represents an assessment point immediately before discharge, when discharge disposition and in-hospital treatment information are available. This timing must be respected when interpreting the model; those fields would be future information for an earlier admission-time prediction.
 
 ## 🩺 Top Consensus Clinical Risk Drivers
 
@@ -145,36 +98,50 @@ Across all four architectures, the strongest consensus predictors of 30-day read
 
 ---
 
-## 🚀 Quickstart & Installation
+## 🚀 Run the Web Application (Windows)
 
-### 1. Clone the Repository
+The application has two parts: the FastAPI backend (port `8000`) and the Angular frontend (port `4200`). Run each in a separate terminal from the repository root.
 
-```bash
-git clone https://github.com/Amrutaa20/patient-readmission-risk-prediction.git
-cd patient-readmission-risk-prediction
+### 1. Start the backend
+
+In the first PowerShell terminal:
+
+```powershell
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+pip install -r backend\requirements.txt
+cd backend
+python -m uvicorn app:app --reload
 ```
 
-### 2. Set Up a Virtual Environment
+If PowerShell blocks virtual-environment activation, run this once in that terminal and activate again:
 
-```bash
-# Windows
-python -m venv .venv
-.venv\Scripts\activate
-
-# macOS / Linux
-python3 -m venv .venv
-source .venv/bin/activate
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv\Scripts\Activate.ps1
 ```
 
-### 3. Install Dependencies
+Confirm the API is running at `http://127.0.0.1:8000/`. Interactive API documentation is at `http://127.0.0.1:8000/docs`.
+
+### 2. Start the frontend
+
+Open a second terminal:
+
+```powershell
+cd frontend
+npm install
+npm start
+```
+
+Open `http://localhost:4200/` in your browser. The dashboard is the home page; use **New Prediction** or visit `http://localhost:4200/prediction/new` to try a sample prediction. The backend must be running for the UI to show its API connection and for predictions to work.
+
+> **Note:** The prediction form accepts encounter inputs and applies the saved one-hot feature schema in the backend. The separate sample endpoint can score an existing processed row. This is an academic demonstration and is not clinically validated.
+
+## 📓 Run the Jupyter Notebooks
 
 ```bash
 pip install -r requirements.txt
-```
-
-### 4. Run Jupyter Notebooks
-
-```bash
 jupyter notebook notebooks/
 ```
 
@@ -186,10 +153,10 @@ You can execute the notebooks in sequence from `01` through `07`.
 
 The trained models and threshold metadata are exported in `models/`:
 
-- `catboost_model.pkl` & `catboost_model.cbm`: Champion model
+- `catboost_model.pkl` & `catboost_model.cbm`: Existing comparison artifact; not deployed
 - `xgboost_model.pkl`: XGBoost model
 - `random_forest_model.pkl`: Random Forest model
 - `logistic_regression_model.pkl`: Logistic Regression model
 - `scaler.pkl`: Fitted `StandardScaler` for inference
-- `champion_model_metadata.json`: Calibrated thresholds and metric metadata
-
+- `champion_model_metadata.json`: Existing XGBoost deployment threshold and metrics
+- `model_comparison_metadata.json`: Recorded model metrics and evaluation limitations served to the UI

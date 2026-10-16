@@ -1,17 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-
-interface PatientRecord {
-  id: string;
-  age: string;
-  gender: string;
-  diagnosis: string;
-  prevAdmissions: number;
-  lastPrediction: string;
-  riskCategory: 'High' | 'Medium' | 'Low';
-  predictionId: string;
-}
+import { Subscription } from 'rxjs';
+import { DatasetPatientFilters, DatasetPatientRecord, PredictionApi } from '../../core/services/prediction-api';
 
 @Component({
   selector: 'app-patients',
@@ -20,35 +11,92 @@ interface PatientRecord {
   templateUrl: './patients.html',
   styleUrl: './patients.css'
 })
-export class Patients {
-  searchId = '';
-  selectedAge = 'All';
-  selectedGender = 'All';
-  selectedDiagnosis = 'All';
-  selectedPrevAdmissions = 'All';
-  selectedRisk = 'All';
+export class Patients implements OnInit, OnDestroy {
+  records: DatasetPatientRecord[] = [];
+  filters: DatasetPatientFilters = { age: [], gender: [], race: [] };
+  search = '';
+  selectedAge = '';
+  selectedGender = '';
+  selectedRace = '';
+  readonly pageSize = 50;
+  totalRecords = 0;
+  loading = false;
+  errorMessage = '';
+  private appliedSearch = '';
+  private appliedAge = '';
+  private appliedGender = '';
+  private appliedRace = '';
 
-  allPatients: PatientRecord[] = [
-    { id: 'P-1001', age: '65-75', gender: 'Male', diagnosis: 'Diabetes', prevAdmissions: 2, lastPrediction: '2025-04-12', riskCategory: 'High', predictionId: 'PR-001' },
-    { id: 'P-1002', age: '45-55', gender: 'Female', diagnosis: 'Hypertension', prevAdmissions: 0, lastPrediction: '2025-04-10', riskCategory: 'Low', predictionId: 'PR-002' },
-    { id: 'P-1003', age: '55-65', gender: 'Male', diagnosis: 'COPD', prevAdmissions: 1, lastPrediction: '2025-04-08', riskCategory: 'Medium', predictionId: 'PR-003' },
-    { id: 'P-1004', age: '35-45', gender: 'Female', diagnosis: 'Diabetes', prevAdmissions: 0, lastPrediction: '2025-04-07', riskCategory: 'Low', predictionId: 'PR-004' },
-    { id: 'P-1005', age: '75+', gender: 'Male', diagnosis: 'CHF', prevAdmissions: 3, lastPrediction: '2025-04-06', riskCategory: 'High', predictionId: 'PR-005' },
-    { id: 'P-1006', age: '55-65', gender: 'Female', diagnosis: 'Circulatory', prevAdmissions: 1, lastPrediction: '2025-04-05', riskCategory: 'Medium', predictionId: 'PR-006' },
-    { id: 'P-1007', age: '65-75', gender: 'Male', diagnosis: 'Hypertension', prevAdmissions: 0, lastPrediction: '2025-04-03', riskCategory: 'Low', predictionId: 'PR-007' }
-  ];
+  private datasetRequest?: Subscription;
 
-  filteredPatients = [...this.allPatients];
-  currentPage = 1;
+  constructor(private predictionApi: PredictionApi) {}
 
-  applyFilters(): void {
-    this.filteredPatients = this.allPatients.filter((p) => {
-      const matchId = !this.searchId || p.id.toLowerCase().includes(this.searchId.toLowerCase());
-      const matchAge = this.selectedAge === 'All' || p.age === this.selectedAge;
-      const matchGender = this.selectedGender === 'All' || p.gender === this.selectedGender;
-      const matchDiagnosis = this.selectedDiagnosis === 'All' || p.diagnosis === this.selectedDiagnosis;
-      const matchRisk = this.selectedRisk === 'All' || p.riskCategory === this.selectedRisk;
-      return matchId && matchAge && matchGender && matchDiagnosis && matchRisk;
+  ngOnInit(): void {
+    this.loadDatasetFilters();
+    this.loadDatasetRecords();
+  }
+
+  ngOnDestroy(): void {
+    this.datasetRequest?.unsubscribe();
+  }
+
+  get hasUnappliedDatasetChanges(): boolean {
+    return this.search.trim() !== this.appliedSearch || this.selectedAge !== this.appliedAge ||
+      this.selectedGender !== this.appliedGender || this.selectedRace !== this.appliedRace;
+  }
+
+  get hasAppliedDatasetCriteria(): boolean {
+    return !!(this.appliedSearch || this.appliedAge || this.appliedGender || this.appliedRace);
+  }
+
+  loadDatasetFilters(): void {
+    this.predictionApi.getDatasetPatientFilters().subscribe({
+      next: (filters) => { this.filters = filters; },
+      // Browsing remains available if filter metadata cannot be fetched.
+      error: () => { this.filters = { age: [], gender: [], race: [] }; }
     });
   }
+
+  loadDatasetRecords(): void {
+    this.datasetRequest?.unsubscribe();
+    this.loading = true;
+    this.errorMessage = '';
+    this.appliedSearch = this.search.trim();
+    this.appliedAge = this.selectedAge;
+    this.appliedGender = this.selectedGender;
+    this.appliedRace = this.selectedRace;
+    this.datasetRequest = this.predictionApi.getDatasetPatients({
+      page: 1,
+      pageSize: this.pageSize,
+      search: this.search.trim() || undefined,
+      age: this.selectedAge || undefined,
+      gender: this.selectedGender || undefined,
+      race: this.selectedRace || undefined
+    }).subscribe({
+      next: (response) => {
+        this.records = response.items;
+        this.totalRecords = response.total;
+        this.loading = false;
+      },
+      error: (error) => {
+        this.records = [];
+        this.totalRecords = 0;
+        this.errorMessage = error?.error?.detail || 'Could not load dataset records. Check that the backend and dataset are available.';
+        this.loading = false;
+      }
+    });
+  }
+
+  applyDatasetFilters(): void {
+    this.loadDatasetRecords();
+  }
+
+  clearDatasetFilters(): void {
+    this.search = '';
+    this.selectedAge = '';
+    this.selectedGender = '';
+    this.selectedRace = '';
+    this.applyDatasetFilters();
+  }
+
 }

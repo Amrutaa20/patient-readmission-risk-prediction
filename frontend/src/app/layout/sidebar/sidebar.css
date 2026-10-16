@@ -43,10 +43,11 @@
 }
 
 .brand-name {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   color: #FFFFFF;
   letter-spacing: -0.3px;
+  line-height: 1.2;
 }
 
 .sidebar-nav {

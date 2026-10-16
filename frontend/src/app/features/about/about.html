@@ -6,7 +6,7 @@
       <div class="meta-list">
         <div class="meta-row">
           <span class="meta-k">Project:</span>
-          <span class="meta-v font-bold">MediPredict AI — Patient Readmission Risk Prediction</span>
+          <span class="meta-v font-bold">Patient Readmission Risk Prediction</span>
         </div>
         <div class="meta-row">
           <span class="meta-k">Domain:</span>
@@ -88,7 +88,7 @@
             </svg>
           </div>
           <span class="step-name">ML Model</span>
-          <span class="step-sub">XGBoost / RF</span>
+          <span class="step-sub">{{ modelName }}</span>
         </div>
 
         <div class="flow-arrow">&rarr;</div>
@@ -139,7 +139,7 @@
       <div class="meta-list">
         <div class="meta-row">
           <span class="meta-k">Algorithm:</span>
-          <span class="meta-v font-bold">Random Forest / XGBoost Classifier</span>
+          <span class="meta-v font-bold">{{ modelName }} (currently deployed)</span>
         </div>
         <div class="meta-row">
           <span class="meta-k">Training Method:</span>
@@ -151,11 +151,11 @@
         </div>
         <div class="meta-row">
           <span class="meta-k">Operating Threshold:</span>
-          <span class="meta-v font-bold">0.40 (Tuned to prioritize Recall for clinical safety)</span>
+          <span class="meta-v font-bold">{{ modelThreshold === null ? 'Unavailable' : (modelThreshold * 100).toFixed(0) + '%' }}</span>
         </div>
         <div class="meta-row">
           <span class="meta-k">Model Version:</span>
-          <span class="meta-v">v1.0.0 (Production candidate)</span>
+          <span class="meta-v">Existing saved artifact; best validated model not established</span>
         </div>
       </div>
     </section>

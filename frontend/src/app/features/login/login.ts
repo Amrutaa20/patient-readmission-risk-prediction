@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -14,15 +13,10 @@ export class Login {
   password = '••••••••••••';
   rememberMe = true;
   isLoading = false;
-
-  constructor(private router: Router) {}
+  errorMessage = '';
 
   onSignIn(): void {
-    this.isLoading = true;
-    setTimeout(() => {
-      this.isLoading = false;
-      this.router.navigate(['/dashboard']);
-    }, 400);
+    this.errorMessage = 'Authentication is not configured. No sign-in was performed.';
   }
 }
 
